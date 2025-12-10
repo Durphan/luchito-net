@@ -1,0 +1,30 @@
+services:
+  db-luchito:
+    image: postgres:15
+    container_name: db-luchito
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: abastecimiento
+      POSTGRES_HOST: db-luchito
+      POSTGRES_PORT: 5432
+    ports:
+      - "8080:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d abastecimiento"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  api-pipicucu-net:
+    build:
+      context: .
+      dockerfile: dockerfile
+    container_name: api-luchito-net
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__DockerPostgreSql: Host=db-luchito;Port=5432;Database=postgres;Username=postgres;Password=postgres
+    ports:
+      - "3001:5040"
+    depends_on:
+      db-luchito:
+        condition: service_healthy

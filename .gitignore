@@ -1,0 +1,7 @@
+bin/
+obj/
+build/
+log/
+.vs/
+migrations/
+logs/
