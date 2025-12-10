@@ -1,4 +1,6 @@
 using System.Diagnostics;
+using luchito_net.Models.Dto.Response;
+using luchito_net.Service.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -6,22 +8,24 @@ namespace luchito_net.Pages;
 
 [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
 [IgnoreAntiforgeryToken]
-public class ErrorModel : PageModel
+public class ProductModel(ILogger<ProductModel> logger) : PageModel
 {
-    public string? RequestId { get; set; }
 
-    public bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
 
-    private readonly ILogger<ErrorModel> _logger;
+    private readonly ILogger<ProductModel> _logger = logger;
 
-    public ErrorModel(ILogger<ErrorModel> logger)
-    {
-        _logger = logger;
-    }
+    private readonly IProductService _productService;
 
+    private readonly ICategoryService _categoryService;
     public void OnGet()
     {
-        RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier;
     }
+
+    public ProductSearchResponseDto GetProducts(string query, int page = 1, int pageSize = 10, bool onlyActive = true)
+    {
+        var result = _productService.SearchProductsByName(query, page, pageSize, onlyActive).Result;
+        return result;
+    }
+
 }
 

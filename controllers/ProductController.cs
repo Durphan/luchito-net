@@ -36,6 +36,14 @@ namespace luchito_net.Controllers
             return Ok(result);
         }
 
+        /// <summary>
+        /// Search products by category with pagination and active status filter
+        /// </summary>
+        /// <param name="idCategory"></param>
+        /// <param name="page"></param>
+        /// <param name="pageSize"></param>
+        /// <param name="onlyActive"></param>
+        /// <returns></returns>
         [HttpGet("getProducts/category/{idCategory}")]
         [SwaggerOperation(Summary = "Search products by category with pagination and active status filter")]
         [ProducesResponseType(typeof(ProductSearchCategoryResponseDto), 200)]
@@ -51,29 +59,69 @@ namespace luchito_net.Controllers
             var result = await _productService.SearchProductsByCategory(idCategory, page, pageSize, onlyActive);
             return Ok(result);
         }
-
+        /// <summary>
+        /// Get product by ID
+        /// </summary>
+        /// <param name="id">The ID of the product to retrieve</param>
+        /// <returns> The product details</returns>
         [HttpGet("product/{id}")]
+        [SwaggerOperation(Summary = "Get product by ID")]
+        [ProducesResponseType(typeof(ProductResponseDto), 200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(500)]
+        [Produces("application/json")]
         public async Task<ActionResult<ProductResponseDto>> GetProductById(int id)
         {
             var result = await _productService.GetProductById(id);
             return Ok(result);
         }
 
+        /// <summary>
+        /// Create a new product
+        /// </summary>
+        /// <param name="product">The product details to create</param>
+        /// <returns>The created product details</returns>
         [HttpPost("createProduct")]
+        [SwaggerOperation(Summary = "Create a new product")]
+        [ProducesResponseType(typeof(ProductResponseDto), 201)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(500)]
+        [Produces("application/json")]
         public async Task<ActionResult<ProductResponseDto>> AddProduct([FromBody] ProductRequestDto product)
         {
             var result = await _productService.AddProduct(product);
             return CreatedAtAction(nameof(GetProductById), new { id = result.Id }, result);
         }
 
+        /// <summary>
+        /// Update an existing product
+        /// </summary>
+        /// <param name="id">The ID of the product to update</param>
+        /// <param name="product">The updated product details</param>
+        /// <returns>The updated product details</returns>
         [HttpPut("updateProduct/{id}")]
+        [SwaggerOperation(Summary = "Update an existing product")]
+        [ProducesResponseType(typeof(ProductResponseDto), 200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(500)]
+        [Produces("application/json")]
         public async Task<ActionResult<ProductResponseDto>> UpdateProduct(int id, [FromBody] ProductRequestDto product)
         {
             var result = await _productService.UpdateProduct(id, product);
             return Ok(result);
         }
 
+        /// <summary>
+        /// Delete a product by ID
+        /// </summary>
+        /// <param name="id">The ID of the product to delete</param>
+        /// <returns>The deleted product details</returns>
         [HttpDelete("deleteProduct/{id}")]
+        [SwaggerOperation(Summary = "Delete a product by ID")]
+        [ProducesResponseType(typeof(ProductResponseDto), 200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(500)]
+        [Produces("application/json")]
         public async Task<ActionResult<ProductResponseDto>> DeleteProduct(int id)
         {
             var result = await _productService.DeleteProduct(id);
