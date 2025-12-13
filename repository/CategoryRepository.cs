@@ -64,5 +64,17 @@ namespace luchito_net.Repository
             return existingCategory;
 
         }
+
+        public async Task<IEnumerable<Category>> GetAllCategoriesWithHierarchy(bool onlyActive = true)
+        {
+            IQueryable<Category> query = _context.Set<Category>()
+                .Include(c => c.Products)
+                .OrderBy(c => c.Name);
+            if (onlyActive)
+            {
+                query = query.Where(c => c.IsActive);
+            }
+            return await query.ToListAsync();
+        }
     }
 }

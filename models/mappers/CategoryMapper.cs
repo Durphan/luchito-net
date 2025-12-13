@@ -25,8 +25,7 @@ public static class CategoryMapper
             Name = categoryDto.Name,
             ParentCategoryID = categoryDto.ParentCategoryID,
             IsActive = categoryDto.IsActive ?? true,
-            CreatedAt = DateTime.UtcNow,
-            UpdatedAt = null
+            CreatedAt = DateTime.UtcNow
         };
     }
 
@@ -40,5 +39,24 @@ public static class CategoryMapper
             Page = page,
             Limit = take
         };
+    }
+
+
+    public static CategoryWithSubcategoriesAndProductsResponseDto ToCategoryWithSubcategoriesAndProductsResponseDto(this Category category, Dictionary<int, Category> categoryDict)
+    {
+        CategoryWithSubcategoriesAndProductsResponseDto dto = new()
+        {
+            Id = category.Id,
+            Name = category.Name,
+            ParentCategoryID = category.ParentCategoryID,
+            IsActive = category.IsActive,
+            CreatedAt = category.CreatedAt,
+            UpdatedAt = category.UpdatedAt,
+            Subcategories = [.. categoryDict.Values
+                    .Where(c => c.ParentCategoryID == category.Id)
+                    .Select(c => ToCategoryWithSubcategoriesAndProductsResponseDto(c, categoryDict))],
+            Products = category.Products?.Select(p => p.ToResponseDto()).ToList() ?? []
+        };
+        return dto;
     }
 }

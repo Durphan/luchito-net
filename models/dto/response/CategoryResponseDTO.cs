@@ -36,5 +36,15 @@ namespace luchito_net.Models.Dto.Response
         /// </summary>
         public DateTime? UpdatedAt { get; set; }
 
+        /// <summary>
+        /// List of subcategories.
+        /// </summary>
+        public List<CategoryResponseDto> Subcategories { get; set; } = new();
+
+        /// <summary>
+        /// List of products in this category.
+        /// </summary>
+        public List<ProductResponseDto> Products { get; set; } = new();
+
     }
 }

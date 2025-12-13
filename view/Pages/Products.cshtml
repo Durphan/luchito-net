@@ -1,0 +1,57 @@
+﻿@page
+@using luchito_net.Models.Dto.Response
+@model ProductModel
+@{
+    ViewData["Title"] = "Productos";
+}
+
+<h1 class="text-dark">Lista de categorias y productos</h1>
+<table class="table-striped table-bordered">
+<thead>
+<tr>
+<th>Id</th>
+<th>Nombre</th>
+<th>Creado en</th>
+<th>Actualizado en</th>
+<th>Editar</th>
+<th>Eliminar</th>
+</tr>
+</thead>
+@{
+    void RenderCategory(CategoryResponseDto category, int level = 0)
+    {
+        <tr>
+            <td>@category.Id</td>
+            <td style="padding-left: @(level * 20)px;">@category.Name</td>
+            <td>@category.CreatedAt</td>
+            <td>@{
+                if (category.UpdatedAt.HasValue)
+                {
+                    @category.UpdatedAt.Value.ToString();
+                }
+                else
+                {
+                    @:N/A
+                }
+            }</td>
+        </tr>
+        foreach (var product in category.Products)
+        {
+            <tr style="padding-left: @((level + 1) * 20)px;">
+
+                @product.Name
+            </tr>
+        }
+        foreach (var subcategory in category.Subcategories)
+        {
+            RenderCategory(subcategory, level + 1);
+        }
+    }
+
+    foreach (CategoryResponseDto category in Model._categories ?? new List<CategoryResponseDto>())
+    {
+        RenderCategory(category);
+    }
+}
+
+</table>

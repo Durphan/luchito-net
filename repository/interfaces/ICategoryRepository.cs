@@ -13,5 +13,7 @@ namespace luchito_net.Repository.Interfaces
         Task<Category> GetCategoryById(int id);
 
         Task<Category> DeleteCategory(int id);
+
+        Task<IEnumerable<Category>> GetAllCategoriesWithHierarchy(bool onlyActive = true);
     }
 }

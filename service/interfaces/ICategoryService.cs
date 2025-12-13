@@ -15,5 +15,7 @@ namespace luchito_net.Service.Interfaces
         Task<CategoryResponseDto> UpdateCategory(int id, CategoryRequestDto categoryDto);
 
         Task<CategoryResponseDto> DeleteCategory(int id);
+
+        Task<List<CategoryWithSubcategoriesAndProductsResponseDto>> GetAllCategoriesWithHierarchy(bool onlyActive = true);
     }
 }
