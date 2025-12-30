@@ -1,57 +1,94 @@
 ﻿@page
+@using Microsoft.EntityFrameworkCore.Metadata.Internal
 @using luchito_net.Models.Dto.Response
+@using luchito_net.View.Pages
 @model ProductModel
 @{
     ViewData["Title"] = "Productos";
+
 }
 
-<h1 class="text-dark">Lista de categorias y productos</h1>
-<table class="table-striped table-bordered">
-<thead>
-<tr>
-<th>Id</th>
-<th>Nombre</th>
-<th>Creado en</th>
-<th>Actualizado en</th>
-<th>Editar</th>
-<th>Eliminar</th>
-</tr>
-</thead>
-@{
-    void RenderCategory(CategoryResponseDto category, int level = 0)
-    {
-        <tr>
-            <td>@category.Id</td>
-            <td style="padding-left: @(level * 20)px;">@category.Name</td>
-            <td>@category.CreatedAt</td>
-            <td>@{
-                if (category.UpdatedAt.HasValue)
-                {
-                    @category.UpdatedAt.Value.ToString();
-                }
-                else
-                {
-                    @:N/A
-                }
-            }</td>
-        </tr>
-        foreach (var product in category.Products)
-        {
-            <tr style="padding-left: @((level + 1) * 20)px;">
 
-                @product.Name
-            </tr>
-        }
-        foreach (var subcategory in category.Subcategories)
-        {
-            RenderCategory(subcategory, level + 1);
-        }
-    }
+<h1 class="text-dark mb-4">Productos</h1>
 
-    foreach (CategoryResponseDto category in Model._categories ?? new List<CategoryResponseDto>())
-    {
-        RenderCategory(category);
-    }
-}
+<div class="siderbar mb-4">
+    <h3>Selecciona la categoria</h3>
 
-</table>
+
+</div>
+
+<h2>Creacion de Categoria</h2>
+<form id="createCategoryForm">
+    <input type="text" id="name" required name="name" placeholder="Nombre de la categoria">
+    <input type="text" id="parentCategoryId" name="parentCategoryId" placeholder="ID de la categoria padre">
+    <input type="text" id="isActive" name="isActive" placeholder="Activo (true/false)">
+    <button type="submit">Crear Categoria</button>
+</form>
+
+<h2>Creacion de Producto</h2>
+<form method="post" asp-page-handler="CreateProduct" id="createProductForm" >
+    <input type="text" id="name" required name="name" placeholder="Nombre del producto">
+    <input type="text" id="categoryId" required name="categoryId" placeholder="ID de la categoria">
+    <button type="submit">Crear Producto</button>
+</form>
+
+<h2>Creacion de orden</h2>
+<form method="post" asp-page-handler="CreateOrder" id="createOrderForm" >
+    <input type="text" id="productId" required name="productId" placeholder="ID del producto">
+    <input type="text" id="quantity" required name="quantity" placeholder="Cantidad">
+    <input type="text" hidden name="stateId" value="1"/>
+    <input type="checkbox" name="boxed" id="boxed"/>
+    <label for="boxed">Empaquetado</label>
+    <button type="submit">Crear Orden</button>
+</form>
+
+<h2>Edicion de categoria</h2>
+<form id="editCategoryForm" >
+    <input type="text" id="categoryId" required name="id" placeholder="ID de la categoria">
+    <input type="text" id="name" required name="name" placeholder="Nuevo nombre de la categoria">
+    <input type="text" id="parentCategoryId" name="parentCategoryId" placeholder="ID de la categoria padre">
+    <input type="text" id="isActive" name="isActive" placeholder="Activo (true/false)">
+    <button type="submit">Editar Categoria</button>
+</form>
+
+<h2>Edicion de producto</h2>
+<form method="post" asp-page-handler="UpdateProduct" id="editProductForm" >
+    <input type="text" id="productId" required name="id" placeholder="ID del producto">
+    <input type="text" id="name" required name="name" placeholder="Nuevo nombre del producto">
+    <input type="text" id="categoryId" required name="categoryId" placeholder="ID de la categoria">
+    <button type="submit">Editar Producto</button>
+</form> 
+
+
+<h2>Edicion de orden</h2>
+<form method="post" asp-page-handler="UpdateOrder" id="editOrderForm" >
+    <input type="text" id="orderId" required name="id" placeholder="ID de la orden">
+    <input type="text" id="productId" required name="productId" placeholder="ID del producto">
+    <input type="text" id="quantity" required name="quantity" placeholder="Cantidad">
+    <input type="text" hidden name="stateId" value="1"/>
+    <input type="checkbox" name="boxed" id="boxed"/>
+    <label for="boxed">Empaquetado</label>
+    <button type="submit">Editar Orden</button>
+</form>
+
+<H2>eliminar producto</H2>
+<form method="post" asp-page-handler="DeleteProduct" id="deleteProductForm" >
+    <input type="text" id="productId" required name="id" placeholder="ID del producto">
+    <button type="submit">Eliminar Producto</button>
+</form>
+
+<h2>eliminar categoria</h2>
+<form id="deleteCategoryForm" >
+    <input type="text" id="categoryId" required name="id" placeholder="ID de la categoria">
+    <button type="submit">Eliminar Categoria</button>
+</form>
+
+<h2>Eliminar orden</h2>
+<form method="post" asp-page-handler="DeleteOrder" id="deleteOrderForm" >
+    <input type="text" id="orderId" required name="id" placeholder="ID de la orden">
+    <button type="submit">Eliminar Orden</button>
+</form>
+
+<script src="~/js/productsForm.js" asp-append-version="true"></script>
+<script src="~/js/categoriesForm.js" asp-append-version="true"></script>
+<script src="~/js/ordersForm.js" asp-append-version="true"></script>

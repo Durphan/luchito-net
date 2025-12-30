@@ -2,16 +2,12 @@ using System.ComponentModel.DataAnnotations;
 
 namespace luchito_net.Models.Dto.Request
 {
-    public class ProductRequestDto(
-        string Name,
-        int CategoryId
-    )
+    public class ProductRequestDto
     {
-
         [Required(ErrorMessage = "Name is required.")]
-        public string Name { get; set; } = Name;
+        public required string Name { get; set; }
 
         [Required(ErrorMessage = "CategoryId is required.")]
-        public int CategoryId { get; set; } = CategoryId;
+        public required int CategoryId { get; set; }
     }
 }

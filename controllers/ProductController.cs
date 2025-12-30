@@ -10,6 +10,7 @@ namespace luchito_net.Controllers
     [Route("api")]
     public class ProductController(IProductService productService) : ControllerBase
     {
+
         private readonly IProductService _productService = productService;
 
         /// <summary>

@@ -45,19 +45,14 @@ namespace luchito_net.Service
         public async Task<List<CategoryWithSubcategoriesAndProductsResponseDto>> GetAllCategoriesWithHierarchy(bool onlyActive = true)
         {
             IEnumerable<Category> categories = await _categoryRepository.GetAllCategoriesWithHierarchy(onlyActive);
-            return BuildCategoryHierarchy(categories);
-        }
-
-
-        private List<CategoryWithSubcategoriesAndProductsResponseDto> BuildCategoryHierarchy(IEnumerable<Category> categories)
-        {
             Dictionary<int, Category> categoryDict = categories.ToDictionary(c => c.Id, c => c);
-
-            List<CategoryWithSubcategoriesAndProductsResponseDto> rootCategories = [.. categoryDict.Values
-                .Where(c => c.ParentCategoryID == null)
-                .Select(c => c.ToCategoryWithSubcategoriesAndProductsResponseDto(categoryDict))];
-
-            return rootCategories;
+            List<CategoryWithSubcategoriesAndProductsResponseDto> categoryHierarchy = [];
+            foreach (Category category in categoryDict.Values.Where(c => c.ParentCategoryID == null))
+            {
+                categoryHierarchy.Add(category.ToCategoryWithSubcategoriesAndProductsResponseDto(categoryDict));
+            }
+            return categoryHierarchy;
         }
+
     }
 }

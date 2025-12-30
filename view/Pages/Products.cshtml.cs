@@ -1,14 +1,14 @@
-using luchito_net.Models;
+
+using luchito_net.Models.Dto.Request;
 using luchito_net.Models.Dto.Response;
-using luchito_net.Service.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using luchito_net.Service.Interfaces;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace luchito_net.Pages;
+namespace luchito_net.View.Pages;
 
-[ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-[IgnoreAntiforgeryToken]
-public class ProductModel(ILogger<ProductModel> logger, IProductService productService, ICategoryService categoryService) : PageModel
+
+public class ProductModel(ILogger<ProductModel> logger, IProductService productService, ICategoryService categoryService, IOrderService orderService) : PageModel
 {
 
 
@@ -18,29 +18,106 @@ public class ProductModel(ILogger<ProductModel> logger, IProductService productS
 
     private readonly ICategoryService _categoryService = categoryService;
 
+    private readonly IOrderService _orderService = orderService;
+
+    public GetAllCategoriesResponseDto? _categories;
+
     public ProductSearchResponseDto? _products;
 
-    public List<CategoryResponseDto>? _categories;
-
-    public async Task OnGet()
+    public async Task<IActionResult> OnGetAsync()
     {
-        _products = SearchProductsByName().Result;
-        _categories = await _categoryService.GetAllCategoriesWithHierarchy(true);
+        _categories = await _categoryService.GetAllCategories("", 1, 10, true);
+        _products = await _productService.SearchProductsByName("", 1, 10, true);
+        return Page();
     }
 
-    public async Task<ProductSearchCategoryResponseDto> GetProductsByCategoryId(int categoryId, int pageNumber = 1)
+    public async Task<IActionResult> OnCategoryEdit(CategoryRequestDto category, int id)
     {
-        return await _productService.SearchProductsByCategory(categoryId, pageNumber, 10, true);
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        await _categoryService.UpdateCategory(id, category);
+        return Page();
     }
 
-    public async Task<GetAllCategoriesResponseDto> GetCategoriesByName(string name = "", int pageNumber = 1)
+
+    public async Task<IActionResult> OnPostUpdateCategoryAsync(CategoryRequestDto category, int id)
     {
-        return await _categoryService.GetAllCategories(name, pageNumber, 10, true);
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+        await _categoryService.UpdateCategory(id, category);
+        return RedirectToPage();
     }
 
-    public async Task<ProductSearchResponseDto> SearchProductsByName(string name = "", int pageNumber = 1)
+    public async Task<IActionResult> OnPostDeleteCategoryAsync(int id)
     {
-        return await _productService.SearchProductsByName(name, pageNumber, 10, true);
+        Console.WriteLine($"Deleting category with ID: {id}");
+        await _categoryService.DeleteCategory(id);
+        return RedirectToPage();
+    }
+
+    public async Task<IActionResult> OnPostCreateOrderAsync(OrderRequestDto order, string boxed)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+        order.IsBoxed = boxed == "on";
+        await _orderService.CreateOrder(order);
+        return RedirectToPage();
+    }
+
+    public async Task<IActionResult> OnPostCreateCategoryAsync(CategoryRequestDto category)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+        await _categoryService.CreateCategory(category);
+        return RedirectToPage();
+    }
+
+    public async Task<IActionResult> OnPostUpdateProductAsync(ProductRequestDto product, int id)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+        await _productService.UpdateProduct(id, product);
+        return RedirectToPage();
+    }
+
+    public async Task<IActionResult> OnPostCreateProductAsync(ProductRequestDto product)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+        await _productService.AddProduct(product);
+        return RedirectToPage();
+    }
+
+
+    public async Task<IActionResult> OnPostDeleteProductAsync(int id)
+    {
+        Console.WriteLine($"Deleting product with ID: {id}");
+        await _productService.DeleteProduct(id);
+        return RedirectToPage();
+    }
+
+    public async Task<IActionResult> OnPostUpdateOrderAsync(OrderRequestDto order, int id, string boxed)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+        order.IsBoxed = boxed == "on";
+        await _orderService.UpdateOrder(id, order);
+        return RedirectToPage();
     }
 
 

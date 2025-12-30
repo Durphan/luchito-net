@@ -94,16 +94,17 @@ namespace luchito_net.Repository
         {
             try
             {
-                Order existingOrder = (await _context.Set<Order>().FindAsync(id)) ?? throw new NotFoundException($"Order with ID {id} not found.");
+                Order existingOrder = await GetOrderById(id);
                 existingOrder.ProductId = order.ProductId;
                 existingOrder.Quantity = order.Quantity;
                 existingOrder.StateId = order.StateId;
-                existingOrder.IsActive = order.IsActive;
                 existingOrder.ProviderId = order.ProviderId;
                 existingOrder.IsBoxed = order.IsBoxed;
+                existingOrder.IsActive = order.IsActive;
                 _context.Set<Order>().Update(existingOrder);
                 await _context.SaveChangesAsync();
-                return existingOrder;
+                Order newOrder = await GetOrderById(id);
+                return newOrder;
             }
             catch (Exception ex)
             {

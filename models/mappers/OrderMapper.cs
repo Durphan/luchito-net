@@ -14,7 +14,7 @@ public static class OrderMapper
             Quantity = order.Quantity,
             OrderDate = order.OrderDate,
             State = order.State.Name,
-            Provider = order.Provider?.Name ?? string.Empty,
+            Provider = order.Provider?.Name ?? "Sin Proveedor",
             IsBoxed = order.IsBoxed,
             IsActive = order.IsActive
         };
