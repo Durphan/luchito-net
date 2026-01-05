@@ -22,14 +22,23 @@ public class ProductModel(ILogger<ProductModel> logger, IProductService productS
 
     public GetAllCategoriesResponseDto? _categories;
 
-    public ProductSearchResponseDto? _products;
+    public object? _products;
 
-    public async Task<IActionResult> OnGetAsync()
+    public async Task<IActionResult> OnGetAsync(int? categoryId = null, int categoryPage = 1)
     {
-        _categories = await _categoryService.GetAllCategories("", 1, 10, true);
-        _products = await _productService.SearchProductsByName("", 1, 10, true);
+        _categories = await _categoryService.GetAllCategories("", categoryPage, 10, true);
+        if (categoryId.HasValue)
+        {
+            _products = await _productService.SearchProductsByCategory(categoryId.Value, 1, 10, true);
+        }
+        else
+        {
+            _products = await _productService.SearchProductsByName("", 1, 10, true);
+        }
         return Page();
     }
+
+
 
     public async Task<IActionResult> OnCategoryEdit(CategoryRequestDto category, int id)
     {
@@ -109,6 +118,7 @@ public class ProductModel(ILogger<ProductModel> logger, IProductService productS
         return RedirectToPage();
     }
 
+
     public async Task<IActionResult> OnPostUpdateOrderAsync(OrderRequestDto order, int id, string boxed)
     {
         if (!ModelState.IsValid)
@@ -119,10 +129,5 @@ public class ProductModel(ILogger<ProductModel> logger, IProductService productS
         await _orderService.UpdateOrder(id, order);
         return RedirectToPage();
     }
-
-
-
-
-
 }
 

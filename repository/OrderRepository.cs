@@ -31,7 +31,7 @@ namespace luchito_net.Repository
         {
             try
             {
-                Order orderToDelete = (await _context.Set<Order>().FindAsync(id)) ?? throw new NotFoundException($"Order with ID {id} not found.");
+                Order orderToDelete = await GetOrderById(id);
                 orderToDelete.IsActive = false;
                 _context.Set<Order>().Update(orderToDelete);
                 await _context.SaveChangesAsync();

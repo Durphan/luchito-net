@@ -18,8 +18,7 @@ namespace luchito_net.Repository
             {
                 await _context.Set<Product>().AddAsync(product);
                 await _context.SaveChangesAsync();
-                Product productCreated = await _context.Set<Product>().Include(p => p.Category).FirstOrDefaultAsync(p => p.Id == product.Id)
-                    ?? throw new NotFoundException("Failed to retrieve the created product.");
+                Product productCreated = await GetProductById(product.Id);
                 return productCreated;
             }
             catch (DatabaseException ex)
@@ -33,8 +32,9 @@ namespace luchito_net.Repository
         {
             try
             {
-                Product productToDelete = await _context.Set<Product>().FindAsync(id) ?? throw new NotFoundException($"Product with ID {id} not found.");
-                _context.Set<Product>().Remove(productToDelete);
+                Product productToDelete = await GetProductById(id);
+                productToDelete.IsActive = false;
+                _context.Set<Product>().Update(productToDelete);
                 await _context.SaveChangesAsync();
                 return productToDelete;
             }
@@ -65,7 +65,7 @@ namespace luchito_net.Repository
         {
             try
             {
-                Product existingProduct = await _context.Set<Product>().Include(p => p.Category).FirstOrDefaultAsync(p => p.Id == product.Id)
+                Product existingProduct = await GetProductById(product.Id)
                 ?? throw new NotFoundException($"Product with ID {product.Id} not found.");
                 existingProduct.Name = product.Name;
                 existingProduct.CategoryId = product.CategoryId;

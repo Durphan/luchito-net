@@ -3,37 +3,94 @@
 @using luchito_net.Models.Dto.Response
 @using luchito_net.View.Pages
 @model ProductModel
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
 @{
     ViewData["Title"] = "Productos";
 
 }
 
 
-<h1 class="text-dark mb-4">Productos</h1>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-3 col-sm-12">
+            <div class="bg-light p-3 rounded mb-3">
+                <h3>Selecciona la categoria</h3>
+                <button id="addCategoryBtn" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#createCategoryModal">Agregar Categoria</button>
+                <ul id="categoriesList" class="list-group">
+                    @if (Model._categories != null)
+                    {
+                        foreach (var category in Model._categories.Data)
+                        {
+                            <li class="list-group-item category-item" data-id="@category.Id" data-name="@category.Name" data-parent="@category.ParentCategoryID" data-active="@category.IsActive">
+                                @category.Name
+                            </li>
+                        }
+                    }
+                </ul>
+                
+                <nav aria-label="Categories pagination">
+                    <ul class="pagination justify-content-center mt-3" id="categoriesPagination">
+                        @if (Model._categories != null && Model._categories.HasPrevious)
+                        {
+                            <li class="page-item"><a class="page-link" data-page="@(Model._categories.Page - 1)" id="previousPageBtn">Anterior</a></li>
+                        }
+                        <li class="page-item active"><span class="page-link">@Model._categories?.Page</span></li>
+                        @if (Model._categories != null && Model._categories.HasNext)
+                        {
+                            <li class="page-item"><a class="page-link" data-page="@(Model._categories.Page + 1)" asp-action="Index" asp-route-categoryPage="@(Model._categories.Page + 1)">Siguiente</a></li>
+                        }
+                    </ul>
+                </nav>
+            </div>
+        </div>
 
-<div class="siderbar mb-4">
-    <h3>Selecciona la categoria</h3>
-
-
+<div class="modal fade" id="createCategoryModal" tabindex="-1" aria-labelledby="createCategoryModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createCategoryModalLabel">Crear Categoria</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="createCategoryForm">
+                    <div class="mb-3">
+                        <label for="modalName" class="form-label">Nombre de la categoria</label>
+                        <input type="text" class="form-control" id="modalName" name="name" value="" required>
+                    </div>
+                        <input type="text"  class="form-control" hidden id="modalParentCategoryId" name="parentCategoryId" value="">
+                    <input type="text" class="form-control" hidden id="modalIsActive" name="isActive" value="true">
+                    <button type="submit" class="btn btn-primary" data-bs-dismiss="modal" aria-label="Close">Crear Categoria</button>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
 
-<h2>Creacion de Categoria</h2>
-<form id="createCategoryForm">
-    <input type="text" id="name" required name="name" placeholder="Nombre de la categoria">
-    <input type="text" id="parentCategoryId" name="parentCategoryId" placeholder="ID de la categoria padre">
-    <input type="text" id="isActive" name="isActive" placeholder="Activo (true/false)">
-    <button type="submit">Crear Categoria</button>
-</form>
+<div class="modal fade" id="createErrorModal" tabindex="-1" aria-labelledby="createErrorModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-danger" id="createErrorModalLabel"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="createErrorMessage" class="alert alert-danger" role="alert">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 <h2>Creacion de Producto</h2>
-<form method="post" asp-page-handler="CreateProduct" id="createProductForm" >
+<form method="post"  id="createProductForm" >
     <input type="text" id="name" required name="name" placeholder="Nombre del producto">
     <input type="text" id="categoryId" required name="categoryId" placeholder="ID de la categoria">
     <button type="submit">Crear Producto</button>
 </form>
 
 <h2>Creacion de orden</h2>
-<form method="post" asp-page-handler="CreateOrder" id="createOrderForm" >
+<form method="post" id="createOrderForm" >
     <input type="text" id="productId" required name="productId" placeholder="ID del producto">
     <input type="text" id="quantity" required name="quantity" placeholder="Cantidad">
     <input type="text" hidden name="stateId" value="1"/>
@@ -52,7 +109,7 @@
 </form>
 
 <h2>Edicion de producto</h2>
-<form method="post" asp-page-handler="UpdateProduct" id="editProductForm" >
+<form method="post" id="editProductForm" >
     <input type="text" id="productId" required name="id" placeholder="ID del producto">
     <input type="text" id="name" required name="name" placeholder="Nuevo nombre del producto">
     <input type="text" id="categoryId" required name="categoryId" placeholder="ID de la categoria">
@@ -61,7 +118,7 @@
 
 
 <h2>Edicion de orden</h2>
-<form method="post" asp-page-handler="UpdateOrder" id="editOrderForm" >
+<form method="post" id="editOrderForm" >
     <input type="text" id="orderId" required name="id" placeholder="ID de la orden">
     <input type="text" id="productId" required name="productId" placeholder="ID del producto">
     <input type="text" id="quantity" required name="quantity" placeholder="Cantidad">
@@ -72,7 +129,7 @@
 </form>
 
 <H2>eliminar producto</H2>
-<form method="post" asp-page-handler="DeleteProduct" id="deleteProductForm" >
+<form method="post" id="deleteProductForm" >
     <input type="text" id="productId" required name="id" placeholder="ID del producto">
     <button type="submit">Eliminar Producto</button>
 </form>
@@ -84,11 +141,14 @@
 </form>
 
 <h2>Eliminar orden</h2>
-<form method="post" asp-page-handler="DeleteOrder" id="deleteOrderForm" >
+<form method="post" id="deleteOrderForm" >
     <input type="text" id="orderId" required name="id" placeholder="ID de la orden">
     <button type="submit">Eliminar Orden</button>
 </form>
 
-<script src="~/js/productsForm.js" asp-append-version="true"></script>
-<script src="~/js/categoriesForm.js" asp-append-version="true"></script>
-<script src="~/js/ordersForm.js" asp-append-version="true"></script>
+
+
+
+<script src="~/js/pages/products/forms/productsForm.js" asp-append-version="true" type="module"></script>
+<script src="~/js/pages/products/forms/categoriesForm.js" asp-append-version="true" type="module"></script>
+<script src="~/js/pages/products/forms/ordersForm.js" asp-append-version="true" type="module"></script>
