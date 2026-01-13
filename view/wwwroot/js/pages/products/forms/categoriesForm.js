@@ -27,7 +27,7 @@ createCategoryForm?.addEventListener("submit", async (event) => {
     .then((response) => {
       if (response.ok) {
         response.json().then(async () => {
-          await refreshCategoriesList();
+          await refreshCategoriesList(createCategoryForm.dataset.page);
         });
         return;
       }
@@ -40,12 +40,6 @@ createCategoryForm?.addEventListener("submit", async (event) => {
         "No se pudo crear la categoría. Por favor, intente de nuevo y si el problema persiste, contacte al administrador."
       );
     });
-});
-
-nextCategoryPageBtn?.addEventListener("click", async (event) => {
-  event.preventDefault();
-  const page = event.target.getAttribute("data-page");
-  await refreshCategoriesList(page);
 });
 
 async function refreshCategoriesList(page = 1, nameFilter) {

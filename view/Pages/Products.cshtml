@@ -29,16 +29,15 @@
                 </ul>
                 
                 <nav aria-label="Categories pagination">
+                    @{
+                        string previousDisabled = Model._categories != null && !Model._categories.HasPrevious ? "disabled" : "";
+                        string nextDisabled = Model._categories != null && !Model._categories.HasNext ? "disabled" : "";
+                    }
                     <ul class="pagination justify-content-center mt-3" id="categoriesPagination">
-                        @if (Model._categories != null && Model._categories.HasPrevious)
-                        {
-                            <li class="page-item"><a class="page-link" data-page="@(Model._categories.Page - 1)" id="previousPageBtn">Anterior</a></li>
-                        }
-                        <li class="page-item active"><span class="page-link">@Model._categories?.Page</span></li>
-                        @if (Model._categories != null && Model._categories.HasNext)
-                        {
-                            <li class="page-item"><a class="page-link" data-page="@(Model._categories.Page + 1)" asp-action="Index" asp-route-categoryPage="@(Model._categories.Page + 1)">Siguiente</a></li>
-                        }
+                    <li class="page-item"><a class="page-link @previousDisabled" data-page="@(Model._categories?.Page - 1)" id="previousPageBtn" asp-route-categoryPage="@(Model._categories?.Page - 1)">Anterior</a></li>
+                        <li class="page-item active"><span class="page-link">@Model._categories?.Page</span></li>                       
+                    <li class="page-item"><a class="page-link @nextDisabled" data-page="@(Model._categories?.Page + 1)" id="nextCategoryPageBtn" asp-route-categoryPage="@(Model._categories?.Page + 1)">Siguiente</a></li>
+                                       
                     </ul>
                 </nav>
             </div>
@@ -52,7 +51,8 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="createCategoryForm">
+                <form id="createCategoryForm" data-page="@Model._categories?.Page">
+
                     <div class="mb-3">
                         <label for="modalName" class="form-label">Nombre de la categoria</label>
                         <input type="text" class="form-control" id="modalName" name="name" value="" required>
