@@ -4,8 +4,6 @@ const createCategoryForm = document.getElementById("createCategoryForm");
 
 const editCategoryForm = document.getElementById("editCategoryForm");
 
-const nextCategoryPageBtn = document.getElementById("nextCategoryPageBtn");
-
 const deleteCategoryForm = document.getElementById("deleteCategoryForm");
 
 createCategoryForm?.addEventListener("submit", async (event) => {
@@ -37,7 +35,7 @@ createCategoryForm?.addEventListener("submit", async (event) => {
       console.error("Error creating category:", error);
       createErrorModal(
         "Error al crear categoría",
-        "No se pudo crear la categoría. Por favor, intente de nuevo y si el problema persiste, contacte al administrador."
+        "No se pudo crear la categoría. Por favor, intente de nuevo y si el problema persiste, contacte al administrador.",
       );
     });
 });
@@ -52,7 +50,7 @@ async function refreshCategoriesList(page = 1, nameFilter) {
       headers: {
         "Content-Type": "application/json",
       },
-    }
+    },
   ).then((response) => {
     if (response.ok) {
       response.json().then((data) => {
@@ -78,7 +76,7 @@ editCategoryForm?.addEventListener("submit", async (event) => {
     body: JSON.stringify({
       name: String(new FormData(event.target).get("name")),
       parentCategoryId: Number(
-        new FormData(event.target).get("parentCategoryId")
+        new FormData(event.target).get("parentCategoryId"),
       ),
       isActive: new FormData(event.target).get("isActive") === "true",
     }),

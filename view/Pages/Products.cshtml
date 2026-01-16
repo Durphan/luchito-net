@@ -17,12 +17,15 @@
                 <h3>Selecciona la categoria</h3>
                 <button id="addCategoryBtn" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#createCategoryModal">Agregar Categoria</button>
                 <ul id="categoriesList" class="list-group">
+
                     @if (Model._categories != null)
-                    {
+                    { 
                         foreach (var category in Model._categories.Data)
                         {
-                            <li class="list-group-item category-item" data-id="@category.Id" data-name="@category.Name" data-parent="@category.ParentCategoryID" data-active="@category.IsActive">
-                                @category.Name
+                           <li class="list-group-item category-item" data-id="@category.Id" data-name="@category.Name" data-parent="@category.ParentCategoryID" data-active="@category.IsActive">
+                            <a asp-route-categoryId="@category.Id" asp-route-categoryPage="@(Model._categories.Page)">
+                               @category.Name
+                            </a>
                             </li>
                         }
                     }
@@ -37,11 +40,37 @@
                     <li class="page-item"><a class="page-link @previousDisabled" data-page="@(Model._categories?.Page - 1)" id="previousPageBtn" asp-route-categoryPage="@(Model._categories?.Page - 1)">Anterior</a></li>
                         <li class="page-item active"><span class="page-link">@Model._categories?.Page</span></li>                       
                     <li class="page-item"><a class="page-link @nextDisabled" data-page="@(Model._categories?.Page + 1)" id="nextCategoryPageBtn" asp-route-categoryPage="@(Model._categories?.Page + 1)">Siguiente</a></li>
-                                       
                     </ul>
                 </nav>
             </div>
         </div>
+
+        <div class="col-md-9 col-sm-12">
+            <div class="bg-light p-3 rounded mb-3">
+                <h3>Productos</h3>
+                <ul id="productsList" class="list-group">
+                    @if (Model._products != null)
+                    {
+                        foreach (var product in Model._products.Data)
+                        {
+                            <li class="list-group-item">
+                                @product.Name
+                            </li>
+                        }
+                    }
+                    @if (Model._products == null && Model._allProducts != null) { // TODO: Refactor this to avoid duplication
+                        foreach (var product in Model._allProducts.Data)
+                        {
+                            <li class="list-group-item">
+                                @product.Name
+                            </li>
+                        }
+                    }
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
 
 <div class="modal fade" id="createCategoryModal" tabindex="-1" aria-labelledby="createCategoryModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -52,7 +81,6 @@
             </div>
             <div class="modal-body">
                 <form id="createCategoryForm" data-page="@Model._categories?.Page">
-
                     <div class="mb-3">
                         <label for="modalName" class="form-label">Nombre de la categoria</label>
                         <input type="text" class="form-control" id="modalName" name="name" value="" required>

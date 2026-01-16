@@ -22,18 +22,22 @@ public class ProductModel(ILogger<ProductModel> logger, IProductService productS
 
     public GetAllCategoriesResponseDto? _categories;
 
-    public object? _products;
+    public ProductSearchCategoryResponseDto? _products;
 
-    public async Task<IActionResult> OnGetAsync(int? categoryId = null, int categoryPage = 1)
+    public ProductSearchResponseDto? _allProducts;
+
+
+
+    public async Task<IActionResult> OnGetAsync(int? categoryId = null, int categoryPage = 1, int productPage = 1)
     {
         _categories = await _categoryService.GetAllCategories("", categoryPage, 10, true);
         if (categoryId.HasValue)
         {
-            _products = await _productService.SearchProductsByCategory(categoryId.Value, 1, 10, true);
+            _products = await _productService.SearchProductsByCategory(categoryId.Value, productPage, 10, true);
         }
         else
         {
-            _products = await _productService.SearchProductsByName("", 1, 10, true);
+            _allProducts = await _productService.SearchProductsByName("", productPage, 10, true);
         }
         return Page();
     }
