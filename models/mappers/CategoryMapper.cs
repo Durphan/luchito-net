@@ -14,7 +14,8 @@ public static class CategoryMapper
             ParentCategoryID = category.ParentCategoryID,
             IsActive = category.IsActive,
             CreatedAt = category.CreatedAt,
-            UpdatedAt = category.UpdatedAt
+            UpdatedAt = category.UpdatedAt,
+            IsFather = category.Subcategories != null && category.Subcategories.Count > 0,
         };
     }
 
@@ -42,21 +43,7 @@ public static class CategoryMapper
     }
 
 
-    public static CategoryWithSubcategoriesAndProductsResponseDto ToCategoryWithSubcategoriesAndProductsResponseDto(this Category category, Dictionary<int, Category> categoryDict)
-    {
-        CategoryWithSubcategoriesAndProductsResponseDto dto = new()
-        {
-            Id = category.Id,
-            Name = category.Name,
-            ParentCategoryID = category.ParentCategoryID,
-            IsActive = category.IsActive,
-            CreatedAt = category.CreatedAt,
-            UpdatedAt = category.UpdatedAt,
-            Subcategories = [.. categoryDict.Values
-                    .Where(c => c.ParentCategoryID == category.Id)
-                    .Select(c => ToCategoryWithSubcategoriesAndProductsResponseDto(c, categoryDict))],
-            Products = category.Products?.Select(p => p.ToResponseDto()).ToList() ?? []
-        };
-        return dto;
-    }
+
+
+
 }

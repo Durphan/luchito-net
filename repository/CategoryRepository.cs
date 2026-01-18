@@ -34,14 +34,20 @@ namespace luchito_net.Repository
 
         }
 
-        public async Task<(IEnumerable<Category> Categories, int Total)> GetAllCategories(string name, int page, int take, bool onlyActive = true)
+        public async Task<(IEnumerable<Category> Categories, int Total)> GetAllCategories(string name, int page, int take, bool onlyActive = true, bool onlyRootCategories = true)
         {
+
             IQueryable<Category> query = _context.Set<Category>()
                 .Where(c => c.Name.Contains(name))
+                .Include(c => c.Subcategories)
                 .OrderBy(c => c.Name);
             if (onlyActive)
             {
                 query = query.Where(c => c.IsActive);
+            }
+            if (onlyRootCategories)
+            {
+                query = query.Where(c => !c.ParentCategoryID.HasValue);
             }
             IEnumerable<Category> categories = await query
                 .Skip((page - 1) * take)
@@ -49,8 +55,21 @@ namespace luchito_net.Repository
                 .ToListAsync();
             int total = await query.CountAsync();
             return (categories, total);
-
         }
+
+        public async Task<IEnumerable<Category>> GetSubcategories(int parentCategoryId, bool onlyActive = true)
+        {
+            IQueryable<Category> query = _context.Set<Category>()
+                .Where(c => c.ParentCategoryID == parentCategoryId)
+                .Include(c => c.Subcategories)
+                .OrderBy(c => c.Name);
+            if (onlyActive)
+            {
+                query = query.Where(c => c.IsActive);
+            }
+            return await query.ToListAsync();
+        }
+
 
         public async Task<Category> UpdateCategory(int id, Category category)
         {
@@ -63,18 +82,6 @@ namespace luchito_net.Repository
             await _context.SaveChangesAsync();
             return existingCategory;
 
-        }
-
-        public async Task<IEnumerable<Category>> GetAllCategoriesWithHierarchy(bool onlyActive = true)
-        {
-            IQueryable<Category> query = _context.Set<Category>()
-                .Include(c => c.Products)
-                .OrderBy(c => c.Name);
-            if (onlyActive)
-            {
-                query = query.Where(c => c.IsActive);
-            }
-            return await query.ToListAsync();
         }
     }
 }

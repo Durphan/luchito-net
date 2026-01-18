@@ -24,9 +24,9 @@ namespace luchito_net.Service
             return deletedCategory.ToResponseDto();
         }
 
-        async public Task<GetAllCategoriesResponseDto> GetAllCategories(string name, int page, int take, bool onlyActive)
+        async public Task<GetAllCategoriesResponseDto> GetAllCategories(string name, int page, int take, bool onlyActive, bool onlyRootCategories)
         {
-            (IEnumerable<Category>, int) categories = await _categoryRepository.GetAllCategories(name, page, take, onlyActive);
+            (IEnumerable<Category>, int) categories = await _categoryRepository.GetAllCategories(name, page, take, onlyActive, onlyRootCategories);
             return categories.Item1.ToGetAllCategoriesResponseDto(categories.Item2, page, take);
         }
 
@@ -42,16 +42,10 @@ namespace luchito_net.Service
             return category.ToResponseDto();
         }
 
-        public async Task<List<CategoryWithSubcategoriesAndProductsResponseDto>> GetAllCategoriesWithHierarchy(bool onlyActive = true)
+        public async Task<List<CategoryResponseDto>> GetSubcategories(int parentCategoryId, bool onlyActive)
         {
-            IEnumerable<Category> categories = await _categoryRepository.GetAllCategoriesWithHierarchy(onlyActive);
-            Dictionary<int, Category> categoryDict = categories.ToDictionary(c => c.Id, c => c);
-            List<CategoryWithSubcategoriesAndProductsResponseDto> categoryHierarchy = [];
-            foreach (Category category in categoryDict.Values.Where(c => c.ParentCategoryID == null))
-            {
-                categoryHierarchy.Add(category.ToCategoryWithSubcategoriesAndProductsResponseDto(categoryDict));
-            }
-            return categoryHierarchy;
+            IEnumerable<Category> subcategories = await _categoryRepository.GetSubcategories(parentCategoryId, onlyActive);
+            return [.. subcategories.Select(c => c.ToResponseDto())];
         }
 
     }

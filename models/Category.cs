@@ -28,5 +28,8 @@ namespace luchito_net.Models
 
 		[InverseProperty("Category")]
 		public ICollection<Product>? Products { get; set; }
+
+		[InverseProperty("ParentCategory")]
+		public ICollection<Category>? Subcategories { get; set; }
 	}
 }

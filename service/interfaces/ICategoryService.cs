@@ -6,7 +6,9 @@ namespace luchito_net.Service.Interfaces
 {
     public interface ICategoryService
     {
-        Task<GetAllCategoriesResponseDto> GetAllCategories(string name, int page, int take, bool onlyActive);
+        Task<GetAllCategoriesResponseDto> GetAllCategories(string name, int page, int take, bool onlyActive, bool onlyRootCategories);
+
+        Task<List<CategoryResponseDto>> GetSubcategories(int parentCategoryId, bool onlyActive);
 
         Task<CategoryResponseDto> CreateCategory(CategoryRequestDto categoryDto);
 
@@ -16,6 +18,7 @@ namespace luchito_net.Service.Interfaces
 
         Task<CategoryResponseDto> DeleteCategory(int id);
 
-        Task<List<CategoryWithSubcategoriesAndProductsResponseDto>> GetAllCategoriesWithHierarchy(bool onlyActive = true);
+
+
     }
 }

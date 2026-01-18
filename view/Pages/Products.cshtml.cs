@@ -30,7 +30,7 @@ public class ProductModel(ILogger<ProductModel> logger, IProductService productS
 
     public async Task<IActionResult> OnGetAsync(int? categoryId = null, int categoryPage = 1, int productPage = 1)
     {
-        _categories = await _categoryService.GetAllCategories("", categoryPage, 10, true);
+        _categories = await _categoryService.GetAllCategories("", categoryPage, 10, true, true);
         if (categoryId.HasValue)
         {
             _products = await _productService.SearchProductsByCategory(categoryId.Value, productPage, 10, true);

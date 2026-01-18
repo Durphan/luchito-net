@@ -19,6 +19,7 @@ namespace luchito_net.Controllers
         /// <param name="page">The page number to retrieve (default is 1)</param>
         /// <param name="take">The number of categories to take per page (default is 10)</param>
         /// <param name="onlyActive">Whether to include only active categories (default is true)</param>
+        /// <param name="onlyRootCategories">Whether to include only root categories (default is true)</param>
         /// <returns>A paginated list of categories.</returns>
         [HttpGet("getCategories")]
         [SwaggerOperation(Summary = "Get all categories with optional filtering and pagination")]
@@ -30,9 +31,22 @@ namespace luchito_net.Controllers
             [FromQuery] string? name,
             [FromQuery] int page = 1,
             [FromQuery] int take = 10,
-            [FromQuery] bool onlyActive = true)
+            [FromQuery] bool onlyActive = true,
+            [FromQuery] bool onlyRootCategories = true)
         {
-            GetAllCategoriesResponseDto result = await _categoryService.GetAllCategories(name ?? string.Empty, page, take, onlyActive);
+            GetAllCategoriesResponseDto result = await _categoryService.GetAllCategories(name ?? string.Empty, page, take, onlyActive, onlyRootCategories);
+            return Ok(result);
+        }
+
+        [HttpGet("subcategories/{parentCategoryId}")]
+        [SwaggerOperation(Summary = "Get subcategories by parent category ID")]
+        [ProducesResponseType(typeof(List<CategoryResponseDto>), 200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(500)]
+        [Produces("application/json")]
+        public async Task<ActionResult<List<CategoryResponseDto>>> GetSubcategories(int parentCategoryId, [FromQuery] bool onlyActive = true)
+        {
+            var result = await _categoryService.GetSubcategories(parentCategoryId, onlyActive);
             return Ok(result);
         }
 
