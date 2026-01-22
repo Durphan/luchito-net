@@ -5,14 +5,14 @@ using Microsoft.EntityFrameworkCore;
 
 namespace luchito_net.Models
 {
-    [Table("State")]
+    [Table("state")]
     [Index(nameof(Name), IsUnique = true)]
     public class State
     {
-        [Key]
+        [Key, Column("id")]
         public int Id { get; set; }
 
-        [Required]
+        [Required, Column("name")]
         public required string Name { get; set; }
 
         [InverseProperty("State")]

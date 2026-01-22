@@ -14,14 +14,14 @@ namespace luchito_net.Repository
         {
             try
             {
-                Provider createdProvider = (await _context.AddAsync(provider)).Entity;
+                var createdProvider = await _context.Provider.AddAsync(provider);
                 await _context.SaveChangesAsync();
-                return createdProvider;
+                return createdProvider.Entity;
             }
-            catch (Exception ex)
+            catch (Npgsql.PostgresException ex)
             {
                 _logger.LogError(ex, "Error in CreateProvider for provider {ProviderName}", provider.Name);
-                throw;
+                throw new Exception(ex.Message, ex);
             }
         }
 
@@ -29,77 +29,55 @@ namespace luchito_net.Repository
         {
             try
             {
-                Provider providerToDelete = (await _context.Set<Provider>().FindAsync(id)) ?? throw new Exception("Provider with ID " + id + " not found.");
+                Provider providerToDelete = await _context.Provider.FindAsync(id) ?? throw new Exception("Provider with ID " + id + " not found.");
                 providerToDelete.IsActive = false;
-                _context.Set<Provider>().Update(providerToDelete);
                 await _context.SaveChangesAsync();
                 return providerToDelete;
             }
-            catch (Exception ex)
+            catch (Npgsql.PostgresException ex)
             {
                 _logger.LogError(ex, "Error in DeleteProvider for provider ID {ProviderId}", id);
-                throw;
+                throw new Exception(ex.Message, ex);
             }
         }
 
         public async Task<Provider> GetProviderById(int id)
         {
-            try
-            {
-                return await _context.Set<Provider>().FindAsync(id) ?? throw new Exception("Provider with ID " + id + " not found.");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error in GetProviderById for provider ID {ProviderId}", id);
-                throw;
-            }
+            return await _context.Provider.FindAsync(id) ?? throw new Exception("Provider with ID " + id + " not found.");
         }
 
         public async Task<(IEnumerable<Provider> Providers, int Total)> GetAllProviders(string name, bool? isDistributor, int page, int take, bool onlyActive = true)
         {
-            try
-            {
-                IQueryable<Provider> query = _context.Set<Provider>()
-                    .Where(p => p.Name.Contains(name))
-                    .OrderBy(p => p.Name);
-                if (isDistributor.HasValue)
-                {
-                    query = query.Where(p => p.IsDistributor == isDistributor.Value);
-                }
-                if (onlyActive)
-                {
-                    query = query.Where(p => p.IsActive);
-                }
-                IEnumerable<Provider> providers = await query
-                    .Skip((page - 1) * take)
-                    .Take(take)
-                    .ToListAsync();
-                int total = await query.CountAsync();
-                return (providers, total);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error in GetAllProviders with name {Name}, isDistributor {IsDistributor}, page {Page}, take {Take}, onlyActive {OnlyActive}", name, isDistributor, page, take, onlyActive);
-                throw;
-            }
+            var query = await _context.Provider
+                .Where(p => p.Name.Contains(name))
+                .Where(p => !isDistributor.HasValue || p.IsDistributor == isDistributor.Value)
+                .Where(p => !onlyActive || p.IsActive)
+                .OrderBy(p => p.Name)
+                .Skip((page - 1) * take)
+                .Take(take)
+                .ToListAsync();
+            return (query, await _context.Provider
+                .Where(p => p.Name.Contains(name))
+                .Where(p => !isDistributor.HasValue || p.IsDistributor == isDistributor.Value)
+                .Where(p => !onlyActive || p.IsActive)
+                .CountAsync());
         }
 
         public async Task<Provider> UpdateProvider(int id, Provider provider)
         {
             try
             {
-                Provider existingProvider = (await _context.Set<Provider>().FindAsync(id)) ?? throw new Exception("Provider with ID " + id + " not found.");
+                Provider existingProvider = await _context.Provider.FindAsync(id) ?? throw new Exception("Provider with ID " + id + " not found.");
                 existingProvider.Name = provider.Name;
                 existingProvider.IsDistributor = provider.IsDistributor;
                 existingProvider.IsActive = provider.IsActive;
-                _context.Set<Provider>().Update(existingProvider);
                 await _context.SaveChangesAsync();
                 return existingProvider;
             }
-            catch (Exception ex)
+            catch (Npgsql.PostgresException ex)
             {
                 _logger.LogError(ex, "Error in UpdateProvider for provider ID {ProviderId}", id);
-                throw;
+                throw new Exception(ex.Message, ex);
             }
         }
     }

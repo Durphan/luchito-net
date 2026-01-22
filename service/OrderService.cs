@@ -20,25 +20,25 @@ namespace luchito_net.Service
 
         public async Task<OrderResponseDto> CreateOrder(OrderRequestDto orderDto)
         {
-            Order createdOrder = await _orderRepository.CreateOrder(orderDto.ToEntity());
+            var createdOrder = await _orderRepository.CreateOrder(orderDto.ToEntity());
             return createdOrder.ToResponseDto();
         }
 
         public async Task<OrderResponseDto> GetOrderById(int id)
         {
-            Order order = await _orderRepository.GetOrderById(id);
+            var order = await _orderRepository.GetOrderById(id);
             return order.ToResponseDto();
         }
 
         public async Task<OrderResponseDto> UpdateOrder(int id, OrderRequestDto orderDto)
         {
-            Order order = await _orderRepository.UpdateOrder(id, orderDto.ToEntity());
+            var order = await _orderRepository.UpdateOrder(id, orderDto.ToEntity());
             return order.ToResponseDto();
         }
 
         public async Task<OrderResponseDto> DeleteOrder(int id)
         {
-            Order deletedOrder = await _orderRepository.DeleteOrder(id);
+            var deletedOrder = await _orderRepository.DeleteOrder(id);
             return deletedOrder.ToResponseDto();
         }
     }

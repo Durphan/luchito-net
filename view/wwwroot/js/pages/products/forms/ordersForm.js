@@ -3,7 +3,7 @@ const createOrderForm = document.getElementById("createOrderForm");
 const editOrderForm = document.getElementById("editOrderForm");
 
 const deleteOrderForm = document.getElementById("deleteOrderForm");
-
+/*
 createOrderForm?.addEventListener("submit", async (event) => {
   event.preventDefault();
   await fetch("/api/createOrder", {
@@ -25,6 +25,7 @@ createOrderForm?.addEventListener("submit", async (event) => {
     }
   });
 });
+*/
 
 editOrderForm?.addEventListener("submit", async (event) => {
   event.preventDefault();

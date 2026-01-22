@@ -23,7 +23,7 @@ namespace luchito_net.Models.Dto.Response
         /// <summary>
         /// The date and time when the order was placed.
         /// </summary>
-        public DateTime OrderDate { get; set; }
+        public DateTime CreatedAt { get; set; }
 
         /// <summary>
         /// The name of the order state.

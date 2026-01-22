@@ -2,7 +2,6 @@ using Microsoft.EntityFrameworkCore;
 using luchito_net.Config.DataProvider;
 using luchito_net.Models;
 using luchito_net.Repository.Interfaces;
-using luchito_net.Errors;
 
 namespace luchito_net.Repository
 {
@@ -15,15 +14,14 @@ namespace luchito_net.Repository
         {
             try
             {
-                Order createdOrder = (await _context.Set<Order>().AddAsync(order)).Entity;
+                var createdOrder = await _context.Order.AddAsync(order);
                 await _context.SaveChangesAsync();
-                createdOrder = await GetOrderById(createdOrder.Id);
-                return createdOrder;
+                return await GetOrderById(createdOrder.Entity.Id);
             }
-            catch (Exception ex)
+            catch (Npgsql.PostgresException ex)
             {
                 _logger.LogError(ex, "Error in CreateOrder for order with ProductId {ProductId}", order.ProductId);
-                throw new DatabaseException(ex.Message, ex);
+                throw new Exception(ex.Message, ex);
             }
         }
 
@@ -33,83 +31,61 @@ namespace luchito_net.Repository
             {
                 Order orderToDelete = await GetOrderById(id);
                 orderToDelete.IsActive = false;
-                _context.Set<Order>().Update(orderToDelete);
                 await _context.SaveChangesAsync();
                 return orderToDelete;
             }
-            catch (Exception ex)
+            catch (Npgsql.PostgresException ex)
             {
                 _logger.LogError(ex, "Error in DeleteOrder for order ID {OrderId}", id);
-                throw new DatabaseException(ex.Message, ex);
+                throw new Exception(ex.Message, ex);
             }
         }
 
         public async Task<Order> GetOrderById(int id)
         {
-            try
-            {
-                return await _context.Set<Order>()
-                    .Include(o => o.Product)
-                    .Include(o => o.State)
-                    .Include(o => o.Provider)
-                    .FirstOrDefaultAsync(o => o.Id == id) ?? throw new NotFoundException($"Order with ID {id} not found.");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error in GetOrderById for order ID {OrderId}", id);
-                throw new DatabaseException(ex.Message, ex);
-            }
+            return await _context.Order
+                .Include(o => o.Product)
+                .Include(o => o.State)
+                .Include(o => o.Provider)
+                .FirstOrDefaultAsync(o => o.Id == id) ?? throw new Exception($"Order with ID {id} not found.");
         }
 
         public async Task<(IEnumerable<Order> Orders, int Total)> GetAllOrders(int page, int take, bool onlyActive = true)
         {
-            try
-            {
-                IQueryable<Order> query = _context.Set<Order>()
-                    .OrderBy(o => o.OrderDate)
-                    .Include(o => o.Product)
-                    .Include(o => o.State)
-                    .Include(o => o.Provider);
-                if (onlyActive)
-                {
-                    query = query.Where(o => o.IsActive);
-                }
-                IEnumerable<Order> orders = await query
-                    .Skip((page - 1) * take)
-                    .Take(take)
-                    .ToListAsync();
-                int total = await _context.Set<Order>()
-                    .Where(o => !onlyActive || o.IsActive)
-                    .CountAsync();
-                return (orders, total);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error in GetAllOrders with page {Page}, take {Take}, onlyActive {OnlyActive}", page, take, onlyActive);
-                throw new DatabaseException(ex.Message, ex);
-            }
+
+            var query = await _context.Order
+                .Where(o => !onlyActive || o.IsActive)
+                .OrderBy(o => o.CreatedAt)
+                .Include(o => o.Product)
+                .Include(o => o.State)
+                .Include(o => o.Provider)
+                .Skip((page - 1) * take)
+                .Take(take)
+                .ToListAsync();
+            return (query, await _context.Order
+                .Where(o => !onlyActive || o.IsActive)
+                .CountAsync());
+
         }
 
         public async Task<Order> UpdateOrder(int id, Order order)
         {
             try
             {
-                Order existingOrder = await GetOrderById(id);
+                var existingOrder = await GetOrderById(id);
                 existingOrder.ProductId = order.ProductId;
                 existingOrder.Quantity = order.Quantity;
                 existingOrder.StateId = order.StateId;
                 existingOrder.ProviderId = order.ProviderId;
                 existingOrder.IsBoxed = order.IsBoxed;
                 existingOrder.IsActive = order.IsActive;
-                _context.Set<Order>().Update(existingOrder);
                 await _context.SaveChangesAsync();
-                Order newOrder = await GetOrderById(id);
-                return newOrder;
+                return await GetOrderById(id);
             }
-            catch (Exception ex)
+            catch (Npgsql.PostgresException ex)
             {
                 _logger.LogError(ex, "Error in UpdateOrder for order ID {OrderId}", id);
-                throw new DatabaseException(ex.Message, ex);
+                throw new Exception(ex.Message, ex);
             }
         }
     }

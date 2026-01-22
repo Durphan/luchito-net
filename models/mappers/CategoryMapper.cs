@@ -15,7 +15,7 @@ public static class CategoryMapper
             IsActive = category.IsActive,
             CreatedAt = category.CreatedAt,
             UpdatedAt = category.UpdatedAt,
-            IsFather = category.Subcategories != null && category.Subcategories.Count > 0,
+            IsFather = category.ParentCategoryID == null,
         };
     }
 
@@ -41,8 +41,6 @@ public static class CategoryMapper
             Limit = take
         };
     }
-
-
 
 
 

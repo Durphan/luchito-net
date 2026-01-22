@@ -2,7 +2,6 @@ using Microsoft.EntityFrameworkCore;
 using luchito_net.Config.DataProvider;
 using luchito_net.Models;
 using luchito_net.Repository.Interfaces;
-using luchito_net.Errors;
 
 namespace luchito_net.Repository
 {
@@ -13,75 +12,83 @@ namespace luchito_net.Repository
 
         public async Task<Category> CreateCategory(Category category)
         {
-            Category createdCategory = (await _context.AddAsync(category)).Entity;
-            await _context.SaveChangesAsync();
-            return createdCategory;
+            try
+            {
+                var createdCategory = await _context.Category.AddAsync(category);
+                await _context.SaveChangesAsync();
+                return createdCategory.Entity;
+            }
+            catch (Npgsql.PostgresException ex)
+            {
+                _logger.LogError(ex, "Error in CreateCategory for category with Name {CategoryName}", category.Name);
+                throw new Exception(ex.Message, ex);
+            }
         }
-
         public async Task<Category> DeleteCategory(int id)
         {
+            try
+            {
 
-            Category categoryToDelete = (await _context.Set<Category>().FindAsync(id)) ?? throw new NotFoundException($"Category with ID {id} not found.");
-            categoryToDelete.IsActive = false;
-            _context.Set<Category>().Update(categoryToDelete);
-            await _context.SaveChangesAsync();
-            return categoryToDelete;
+                var categoryToDelete = await _context.Category.FindAsync(id) ?? throw new Exception($"Category with ID {id} not found.");
+                categoryToDelete.IsActive = false;
+                await _context.SaveChangesAsync();
+                return categoryToDelete;
+            }
+            catch (Npgsql.PostgresException ex)
+            {
+                _logger.LogError(ex, "Error in DeleteCategory for category ID {CategoryId}", id);
+                throw new Exception(ex.Message, ex);
+            }
         }
 
         public async Task<Category> GetCategoryById(int id)
         {
-            return await _context.Set<Category>().FindAsync(id) ?? throw new NotFoundException($"Category with ID {id} not found.");
-
+            return await _context.Category.FindAsync(id) ?? throw new Exception($"Category with ID {id} not found.");
         }
 
         public async Task<(IEnumerable<Category> Categories, int Total)> GetAllCategories(string name, int page, int take, bool onlyActive = true, bool onlyRootCategories = true)
         {
-
-            IQueryable<Category> query = _context.Set<Category>()
+            var query = await _context.Category
                 .Where(c => c.Name.Contains(name))
-                .Include(c => c.Subcategories)
-                .OrderBy(c => c.Name);
-            if (onlyActive)
-            {
-                query = query.Where(c => c.IsActive);
-            }
-            if (onlyRootCategories)
-            {
-                query = query.Where(c => !c.ParentCategoryID.HasValue);
-            }
-            IEnumerable<Category> categories = await query
+                .Where(c => onlyActive && c.IsActive)
+
+                .OrderBy(c => c.Name)
                 .Skip((page - 1) * take)
                 .Take(take)
                 .ToListAsync();
-            int total = await query.CountAsync();
-            return (categories, total);
+            return (query, await _context.Category
+                .Where(c => c.Name.Contains(name))
+                .Where(c => onlyActive && c.IsActive)
+                .Where(c => onlyRootCategories && !c.ParentCategoryID.HasValue)
+                .CountAsync());
         }
 
         public async Task<IEnumerable<Category>> GetSubcategories(int parentCategoryId, bool onlyActive = true)
         {
-            IQueryable<Category> query = _context.Set<Category>()
+            return await _context.Set<Category>()
                 .Where(c => c.ParentCategoryID == parentCategoryId)
-                .Include(c => c.Subcategories)
-                .OrderBy(c => c.Name);
-            if (onlyActive)
-            {
-                query = query.Where(c => c.IsActive);
-            }
-            return await query.ToListAsync();
+                .OrderBy(c => c.Name)
+                .ToListAsync();
         }
 
 
         public async Task<Category> UpdateCategory(int id, Category category)
         {
-            Category existingCategory = (await _context.Set<Category>().FindAsync(id)) ?? throw new Exception($"Category with ID {id} not found.");
-            existingCategory.Name = category.Name;
-            existingCategory.ParentCategoryID = category.ParentCategoryID;
-            existingCategory.IsActive = category.IsActive;
-            existingCategory.UpdatedAt = DateTime.UtcNow;
-            _context.Set<Category>().Update(existingCategory);
-            await _context.SaveChangesAsync();
-            return existingCategory;
-
+            try
+            {
+                Category existingCategory = await _context.Category.FindAsync(id) ?? throw new Exception($"Category with ID {id} not found.");
+                existingCategory.Name = category.Name;
+                existingCategory.ParentCategoryID = category.ParentCategoryID;
+                existingCategory.IsActive = category.IsActive;
+                existingCategory.UpdatedAt = DateTime.UtcNow;
+                await _context.SaveChangesAsync();
+                return existingCategory;
+            }
+            catch (Npgsql.PostgresException ex)
+            {
+                _logger.LogError(ex, "Error in UpdateCategory for category ID {CategoryId}", id);
+                throw new Exception(ex.Message, ex);
+            }
         }
     }
 }

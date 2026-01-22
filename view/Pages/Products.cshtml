@@ -7,8 +7,9 @@
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
 @{
     ViewData["Title"] = "Productos";
-
+    // TODO: Revisar Viewmodel
 }
+
 
 
 <div class="container-fluid">
@@ -147,7 +148,7 @@
 </form>
 
 <h2>Creacion de orden</h2>
-<form method="post" id="createOrderForm" >
+<form method="post" asp-page-handler="CreateOrder">
     <input type="text" id="productId" required name="productId" placeholder="ID del producto">
     <input type="text" id="quantity" required name="quantity" placeholder="Cantidad">
     <input type="text" hidden name="stateId" value="1"/>

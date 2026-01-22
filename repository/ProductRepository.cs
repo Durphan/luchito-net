@@ -2,29 +2,34 @@ using Microsoft.EntityFrameworkCore;
 using luchito_net.Config.DataProvider;
 using luchito_net.Models;
 using luchito_net.Repository.Interfaces;
-using luchito_net.Errors;
-using Microsoft.EntityFrameworkCore.Storage;
+using Npgsql;
+using Dapper;
+using System.Data;
 
 namespace luchito_net.Repository
 {
-    public class ProductRepository(InitializeDatabase _context, ILogger<ProductRepository> _logger) : IProductRepository
+    public class ProductRepository(InitializeDatabase _context, ILogger<ProductRepository> _logger, IConfiguration configuration) : IProductRepository
     {
         private readonly InitializeDatabase _context = _context;
         private readonly ILogger<ProductRepository> _logger = _logger;
+
+        private readonly IConfiguration _configuration = configuration;
+
+        private NpgsqlConnection Connection() => new(_configuration.GetConnectionString("DockerPostgreSql"));
+
 
         public async Task<Product> CreateProduct(Product product)
         {
             try
             {
-                await _context.Set<Product>().AddAsync(product);
+                await _context.Product.AddAsync(product);
                 await _context.SaveChangesAsync();
-                Product productCreated = await GetProductById(product.Id);
-                return productCreated;
+                return await GetProductById(product.Id);
             }
-            catch (DatabaseException ex)
+            catch (Npgsql.PostgresException ex)
             {
                 _logger.LogError(ex, "Error in CreateProduct for product {ProductName}", product.Name);
-                throw;
+                throw new Exception(ex.Message, ex);
             }
         }
 
@@ -34,111 +39,91 @@ namespace luchito_net.Repository
             {
                 Product productToDelete = await GetProductById(id);
                 productToDelete.IsActive = false;
-                _context.Set<Product>().Update(productToDelete);
                 await _context.SaveChangesAsync();
                 return productToDelete;
             }
-            catch (DatabaseException ex)
+            catch (Npgsql.PostgresException ex)
             {
                 _logger.LogError(ex, "Error in DeleteProduct for product ID {ProductId}", id);
-                throw;
+                throw new Exception(ex.Message, ex);
             }
         }
 
 
         public async Task<Product> GetProductById(int id)
         {
-            try
-            {
-                return await _context.Set<Product>().Include(p => p.Category).FirstOrDefaultAsync(p => p.Id == id) ?? throw new NotFoundException($"Product with ID {id} not found.");
-            }
-            catch (DatabaseException ex)
-            {
-                _logger.LogError(ex, "Error in GetProductById for product ID {ProductId}", id);
-                throw;
-            }
+            return await _context.Product.Include(p => p.Category).FirstOrDefaultAsync(p => p.Id == id) ?? throw new Exception($"Product with ID {id} not found.");
         }
-
-
 
         public async Task<Product> UpdateProduct(Product product)
         {
             try
             {
-                Product existingProduct = await GetProductById(product.Id)
-                ?? throw new NotFoundException($"Product with ID {product.Id} not found.");
+                var existingProduct = await GetProductById(product.Id)
+                ?? throw new Exception($"Product with ID {product.Id} not found.");
                 existingProduct.Name = product.Name;
                 existingProduct.CategoryId = product.CategoryId;
                 existingProduct.IsActive = product.IsActive;
                 await _context.SaveChangesAsync();
                 return existingProduct;
             }
-            catch (DatabaseException ex)
+            catch (PostgresException ex)
             {
                 _logger.LogError(ex, "Error in UpdateProduct for product ID {ProductId}", product.Id);
-                throw;
+                throw new Exception(ex.Message, ex);
             }
         }
 
 
         public async Task<(IEnumerable<Product> products, int total)> GetProductsByCategoryId(int categoryId, int page, int limit, bool onlyActive = true)
         {
-            try
-            {
-                IEnumerable<Product> products = await _context.Set<Product>()
-                    .Where(p => p.CategoryId == categoryId && (!onlyActive || p.IsActive))
-                    .Skip((page - 1) * limit)
-                    .Include(p => p.Category)
-                    .Take(limit)
-                    .ToListAsync();
-                int total = await _context.Set<Product>().CountAsync(p => p.CategoryId == categoryId && (!onlyActive || p.IsActive));
-                return (products, total);
-            }
-            catch (DatabaseException ex)
-            {
-                _logger.LogError(ex, "Error in GetProductsByCategoryId for category ID {CategoryId}, page {Page}, limit {Limit}", categoryId, page, limit);
-                throw;
-            }
+
+            using var db = Connection();
+
+            db.Open();
+
+            var products = await db.QueryAsync<Product>(@"with recursive category_cte as  (
+
+select c.id from category c
+where c.id = @CategoryId
+
+union all
+
+select c.id from category_cte cte
+join category c on c.parent_category_id = cte.id
+)
+
+
+select * from product p
+where p.category_id  in (select cte.id from category_cte cte)
+
+", new { CategoryId = categoryId }, commandType: CommandType.Text);
+            return (products, products.Count());
         }
 
         public async Task<(IEnumerable<Product> products, int total)> GetProductsByName(string name, int page, int limit, bool onlyActive = true)
         {
-            try
-            {
-                IEnumerable<Product> products = await _context.Set<Product>()
-                    .Where(p => p.Name.Contains(name) && (!onlyActive || p.IsActive))
-                    .Skip((page - 1) * limit)
-                    .Include(p => p.Category)
-                    .Take(limit)
-                    .ToListAsync();
-                int total = await _context.Set<Product>().CountAsync(p => p.Name.Contains(name) && (!onlyActive || p.IsActive));
-                return (products, total);
-            }
-            catch (DatabaseException ex)
-            {
-                _logger.LogError(ex, "Error in GetProductsByName for query {Query}, page {Page}, limit {Limit}", name, page, limit);
-                throw;
-            }
+
+            var products = await _context.Product
+                .Where(p => p.Name.Contains(name) && (!onlyActive || p.IsActive))
+                .Skip((page - 1) * limit)
+                .Include(p => p.Category)
+                .Take(limit)
+                .ToListAsync();
+            return (products, await _context.Product.CountAsync(p => p.Name.Contains(name) && (!onlyActive || p.IsActive)));
+
         }
 
         public async Task<(IEnumerable<Product> products, int total)> GetAllProducts(int page, int limit, bool onlyActive = true)
         {
-            try
-            {
-                IEnumerable<Product> products = await _context.Set<Product>()
-                    .Where(p => !onlyActive || p.IsActive)
-                    .Skip((page - 1) * limit)
-                    .Include(p => p.Category)
-                    .Take(limit)
-                    .ToListAsync();
-                int total = await _context.Set<Product>().CountAsync(p => !onlyActive || p.IsActive);
-                return (products, total);
-            }
-            catch (DatabaseException ex)
-            {
-                _logger.LogError(ex, "Error in GetAllProducts with page {Page}, limit {Limit}, onlyActive {OnlyActive}", page, limit, onlyActive);
-                throw;
-            }
+
+            IEnumerable<Product> products = await _context.Product
+                .Where(p => !onlyActive || p.IsActive)
+                .Skip((page - 1) * limit)
+                .Include(p => p.Category)
+                .Take(limit)
+                .ToListAsync();
+            return (products, await _context.Product.CountAsync(p => !onlyActive || p.IsActive));
         }
     }
 }

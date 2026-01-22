@@ -4,37 +4,35 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace luchito_net.Models
 {
-    [Table("Order")]
+    [Table("order")]
     public class Order
     {
-        [Key]
+        [Key, Column("id")]
         public int Id { get; set; }
 
-        [Required, ForeignKey("ProductId")]
+        [Required, ForeignKey("ProductId"), Column("product_id")]
         public required int ProductId { get; set; }
 
-        [Required]
         public virtual Product Product { get; set; } = null!;
 
-        [Required]
+        [Required, Column("quantity")]
         public required int Quantity { get; set; }
 
-        [Required]
+        [Required, Column("is_boxed")]
         public required bool IsBoxed { get; set; }
 
-        [Required]
-        public required DateTime OrderDate { get; set; }
+        [Required, Column("created_at")]
+        public required DateTime CreatedAt { get; set; }
 
-        [Required]
-        public required bool IsActive { get; set; } = true;
+        [Required, Column("is_active")]
+        public bool IsActive { get; set; } = true;
 
-        [Required, ForeignKey("StateId")]
-        public required int StateId { get; set; }
+        [ForeignKey("StateId"), Column("state_id")]
+        public int StateId { get; set; }
 
-        [Required]
         public virtual State State { get; set; } = null!;
 
-        [ForeignKey("ProviderId")]
+        [ForeignKey("ProviderId"), Column("provider_id")]
         public int? ProviderId { get; set; }
 
         public virtual Provider? Provider { get; set; } = null!;

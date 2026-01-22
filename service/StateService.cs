@@ -15,9 +15,5 @@ namespace luchito_net.Service
             return await _stateRepository.GetStateById(id);
         }
 
-        public async Task<IEnumerable<State>> GetAllStates()
-        {
-            return await _stateRepository.GetAllStates();
-        }
     }
 }

@@ -14,13 +14,13 @@ namespace luchito_net.Service
 
         async public Task<CategoryResponseDto> CreateCategory(CategoryRequestDto categoryDto)
         {
-            Category createdCategory = await _categoryRepository.CreateCategory(categoryDto.ToEntity());
+            var createdCategory = await _categoryRepository.CreateCategory(categoryDto.ToEntity());
             return createdCategory.ToResponseDto();
         }
 
         async public Task<CategoryResponseDto> DeleteCategory(int id)
         {
-            Category deletedCategory = await _categoryRepository.DeleteCategory(id);
+            var deletedCategory = await _categoryRepository.DeleteCategory(id);
             return deletedCategory.ToResponseDto();
         }
 
@@ -32,20 +32,20 @@ namespace luchito_net.Service
 
         public async Task<CategoryResponseDto> GetCategoryById(int id)
         {
-            Category category = await _categoryRepository.GetCategoryById(id);
+            var category = await _categoryRepository.GetCategoryById(id);
             return category.ToResponseDto();
         }
 
         public async Task<CategoryResponseDto> UpdateCategory(int id, CategoryRequestDto categoryDto)
         {
-            Category category = await _categoryRepository.UpdateCategory(id, categoryDto.ToEntity());
+            var category = await _categoryRepository.UpdateCategory(id, categoryDto.ToEntity());
             return category.ToResponseDto();
         }
 
         public async Task<List<CategoryResponseDto>> GetSubcategories(int parentCategoryId, bool onlyActive)
         {
-            IEnumerable<Category> subcategories = await _categoryRepository.GetSubcategories(parentCategoryId, onlyActive);
-            return [.. subcategories.Select(c => c.ToResponseDto())];
+            var subcategories = await _categoryRepository.GetSubcategories(parentCategoryId, onlyActive);
+            return subcategories.Select(c => c.ToResponseDto()).ToList();
         }
 
     }

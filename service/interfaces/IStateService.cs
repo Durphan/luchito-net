@@ -6,6 +6,6 @@ namespace luchito_net.Service.Interfaces
     {
         Task<State> GetStateById(int id);
 
-        Task<IEnumerable<State>> GetAllStates();
+
     }
 }

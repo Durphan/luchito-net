@@ -28,7 +28,7 @@ namespace luchito_net.Controllers
         [ProducesResponseType(500)]
         [Produces("application/json")]
         public async Task<ActionResult<ProductSearchResponseDto>> SearchProductsByName(
-            [FromQuery] string query,
+            [FromQuery] string query = "",
             [FromQuery] int page = 1,
             [FromQuery] int pageSize = 10,
             [FromQuery] bool onlyActive = true)

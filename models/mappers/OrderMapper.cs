@@ -12,7 +12,7 @@ public static class OrderMapper
             Id = order.Id,
             Product = order.Product.Name,
             Quantity = order.Quantity,
-            OrderDate = order.OrderDate,
+            CreatedAt = order.CreatedAt,
             State = order.State.Name,
             Provider = order.Provider?.Name ?? "Sin Proveedor",
             IsBoxed = order.IsBoxed,
@@ -29,7 +29,7 @@ public static class OrderMapper
             StateId = orderDto.StateId,
             ProviderId = orderDto.ProviderId,
             IsBoxed = orderDto.IsBoxed,
-            OrderDate = DateTime.UtcNow,
+            CreatedAt = DateTime.UtcNow,
             IsActive = orderDto.IsActive ?? true
         };
     }

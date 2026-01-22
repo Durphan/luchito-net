@@ -6,30 +6,31 @@ using Microsoft.EntityFrameworkCore;
 namespace luchito_net.Models
 {
 	[Index(nameof(Name), IsUnique = true)]
-	[Table("Category")]
+	[Table("category")]
 	public class Category
 	{
-		[Key]
+		[Key, Column("id")]
 		public int Id { get; set; }
-		[Required]
+		[Required, Column("name")]
 		public required string Name { get; set; }
 
-		[Required, DefaultValue(true)]
+		[Required, DefaultValue(true), Column("is_active")]
 		public bool IsActive { get; set; }
 
-		[ForeignKey("ParentCategory")]
+		[ForeignKey("ParentCategory"), Column("parent_category_id")]
 		public int? ParentCategoryID { get; set; }
 
+		[ForeignKey("ParentCategoryID")]
 		public virtual Category? ParentCategory { get; set; }
 
+		[Required, Column("created_at")]
 		public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
+		[Column("updated_at")]
 		public DateTime? UpdatedAt { get; set; } = null;
 
 		[InverseProperty("Category")]
 		public ICollection<Product>? Products { get; set; }
 
-		[InverseProperty("ParentCategory")]
-		public ICollection<Category>? Subcategories { get; set; }
 	}
 }
