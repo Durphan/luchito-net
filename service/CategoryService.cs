@@ -14,6 +14,7 @@ namespace luchito_net.Service
 
         async public Task<CategoryResponseDto> CreateCategory(CategoryRequestDto categoryDto)
         {
+            categoryDto.Name = NameNormalizer.Normalize(categoryDto.Name);
             var createdCategory = await _categoryRepository.CreateCategory(categoryDto.ToEntity());
             return createdCategory.ToResponseDto();
         }
@@ -38,6 +39,7 @@ namespace luchito_net.Service
 
         public async Task<CategoryResponseDto> UpdateCategory(int id, CategoryRequestDto categoryDto)
         {
+            categoryDto.Name = NameNormalizer.Normalize(categoryDto.Name);
             var category = await _categoryRepository.UpdateCategory(id, categoryDto.ToEntity());
             return category.ToResponseDto();
         }

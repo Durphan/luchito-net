@@ -21,6 +21,7 @@ namespace luchito_net.Service
 
         public async Task<ProviderResponseDto> CreateProvider(ProviderRequestDto providerDto)
         {
+            providerDto.Name = NameNormalizer.Normalize(providerDto.Name);
             Provider createdProvider = await _providerRepository.CreateProvider(providerDto.ToEntity());
             return createdProvider.ToResponseDto();
         }
@@ -33,6 +34,7 @@ namespace luchito_net.Service
 
         public async Task<ProviderResponseDto> UpdateProvider(int id, ProviderRequestDto providerDto)
         {
+            providerDto.Name = NameNormalizer.Normalize(providerDto.Name);
             Provider provider = await _providerRepository.UpdateProvider(id, providerDto.ToEntity());
             return provider.ToResponseDto();
         }

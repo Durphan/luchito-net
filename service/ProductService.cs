@@ -42,6 +42,7 @@ namespace luchito_net.Service
 
         public async Task<ProductResponseDto> UpdateProduct(int id, ProductRequestDto product)
         {
+            product.Name = NameNormalizer.Normalize(product.Name);
             Product entity = product.ToEntity();
             entity.Id = id;
             Product updatedProduct = await _productRepository.UpdateProduct(entity);

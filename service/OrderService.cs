@@ -32,6 +32,10 @@ namespace luchito_net.Service
 
         public async Task<OrderResponseDto> UpdateOrder(int id, OrderRequestDto orderDto)
         {
+            if ((orderDto.StateId == 2 || orderDto.StateId == 3) && !orderDto.ProviderId.HasValue)
+            {
+                throw new Exception("ProviderId is required when changing order state to In Transit or Delivered.");
+            }
             var order = await _orderRepository.UpdateOrder(id, orderDto.ToEntity());
             return order.ToResponseDto();
         }

@@ -26,7 +26,8 @@ builder.Services.AddRazorPages();
 
 builder.Services.Configure<Microsoft.AspNetCore.Mvc.RazorPages.RazorPagesOptions>(options =>
 {
-    options.RootDirectory = "/view/Pages";
+    options.RootDirectory = "/view/Pages"; ;
+
 });
 
 Inject.ConfigureServices(builder.Services);

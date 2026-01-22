@@ -1,4 +1,4 @@
-﻿@page
+﻿@page "/products"
 @using Microsoft.EntityFrameworkCore.Metadata.Internal
 @using luchito_net.Models
 @using luchito_net.Models.Dto.Response
@@ -19,7 +19,6 @@
                 <h3>Selecciona la categoria</h3>
                 <button id="addCategoryBtn" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#createCategoryModal">Agregar Categoria</button>
                 <ul id="categoriesList" class="list-group">
-
                     @if (Model._categories != null)
                     { 
                         foreach (var category in Model._categories.Data)

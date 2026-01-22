@@ -50,8 +50,8 @@ namespace luchito_net.Repository
         {
             var query = await _context.Category
                 .Where(c => c.Name.Contains(name))
-                .Where(c => onlyActive && c.IsActive)
-
+                .Where(c => onlyActive && c.IsActive || !onlyActive)
+                .Where(c => onlyRootCategories && c.ParentCategoryID == null || !onlyRootCategories)
                 .OrderBy(c => c.Name)
                 .Skip((page - 1) * take)
                 .Take(take)
@@ -59,7 +59,7 @@ namespace luchito_net.Repository
             return (query, await _context.Category
                 .Where(c => c.Name.Contains(name))
                 .Where(c => onlyActive && c.IsActive)
-                .Where(c => onlyRootCategories && !c.ParentCategoryID.HasValue)
+                .Where(c => onlyRootCategories)
                 .CountAsync());
         }
 
