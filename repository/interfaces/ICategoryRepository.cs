@@ -1,4 +1,5 @@
 using luchito_net.Models;
+using luchito_net.Models.Entity;
 
 namespace luchito_net.Repository.Interfaces
 {
@@ -12,7 +13,7 @@ namespace luchito_net.Repository.Interfaces
 
         Task<Category> UpdateCategory(int id, Category category);
 
-        Task<Category> GetCategoryById(int id);
+        Task<Category> GetCategory(int id);
 
         Task<Category> DeleteCategory(int id);
 

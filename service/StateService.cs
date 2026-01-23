@@ -1,4 +1,4 @@
-using luchito_net.Models;
+using luchito_net.Models.Entity;
 using luchito_net.Repository.Interfaces;
 using luchito_net.Service.Interfaces;
 

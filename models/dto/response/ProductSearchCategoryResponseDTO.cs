@@ -1,4 +1,5 @@
 
+using luchito_net.Models.Entity;
 using luchito_net.Models.Mappers;
 
 namespace luchito_net.Models.Dto.Response

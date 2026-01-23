@@ -1,15 +1,16 @@
 using luchito_net.Models;
 using luchito_net.Models.Dto.Request;
 using luchito_net.Models.Dto.Response;
+using luchito_net.Models.Entity;
 using luchito_net.Models.Mappers;
 using luchito_net.Repository.Interfaces;
 using luchito_net.Service.Interfaces;
+using luchito_net.Utils;
 
 namespace luchito_net.Service
 {
     public class ProductService(IProductRepository productRepository, ICategoryService categoryService) : IProductService
     {
-
 
         private readonly IProductRepository _productRepository = productRepository;
 
@@ -24,7 +25,7 @@ namespace luchito_net.Service
         public async Task<ProductSearchCategoryResponseDto> SearchProductsByCategory(int idCategory, int page, int pageSize, bool onlyActive)
         {
             (IEnumerable<Product> products, int total) = await _productRepository.GetProductsByCategoryId(idCategory, page, pageSize, onlyActive);
-            string category = (await _categoryService.GetCategoryById(idCategory)).Name;
+            string category = (await _categoryService.GetCategory(idCategory)).Name;
             return products.ToSearchCategoryResponseDto(category, total, page, pageSize);
         }
 
@@ -34,11 +35,14 @@ namespace luchito_net.Service
             return product.ToResponseDto();
         }
 
-        public async Task<ProductResponseDto> AddProduct(ProductRequestDto product)
+        public async Task<ProductResponseDto> CreateProduct(ProductRequestDto product)
         {
+            product.Name = NameNormalizer.Normalize(product.Name);
             Product createdProduct = await _productRepository.CreateProduct(product.ToEntity());
             return createdProduct.ToResponseDto();
         }
+
+
 
         public async Task<ProductResponseDto> UpdateProduct(int id, ProductRequestDto product)
         {

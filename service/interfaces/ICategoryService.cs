@@ -12,7 +12,7 @@ namespace luchito_net.Service.Interfaces
 
         Task<CategoryResponseDto> CreateCategory(CategoryRequestDto categoryDto);
 
-        Task<CategoryResponseDto> GetCategoryById(int id);
+        Task<CategoryResponseDto> GetCategory(int id);
 
         Task<CategoryResponseDto> UpdateCategory(int id, CategoryRequestDto categoryDto);
 

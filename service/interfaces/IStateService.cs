@@ -1,4 +1,4 @@
-using luchito_net.Models;
+using luchito_net.Models.Entity;
 
 namespace luchito_net.Service.Interfaces
 {

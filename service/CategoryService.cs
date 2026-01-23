@@ -1,9 +1,11 @@
 using luchito_net.Models;
 using luchito_net.Models.Dto.Request;
 using luchito_net.Models.Dto.Response;
+using luchito_net.Models.Entity;
 using luchito_net.Models.Mappers;
 using luchito_net.Repository.Interfaces;
 using luchito_net.Service.Interfaces;
+using luchito_net.Utils;
 
 namespace luchito_net.Service
 {
@@ -31,9 +33,9 @@ namespace luchito_net.Service
             return categories.Item1.ToGetAllCategoriesResponseDto(categories.Item2, page, take);
         }
 
-        public async Task<CategoryResponseDto> GetCategoryById(int id)
+        public async Task<CategoryResponseDto> GetCategory(int id)
         {
-            var category = await _categoryRepository.GetCategoryById(id);
+            var category = await _categoryRepository.GetCategory(id);
             return category.ToResponseDto();
         }
 

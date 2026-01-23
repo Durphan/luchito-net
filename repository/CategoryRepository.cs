@@ -2,6 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using luchito_net.Config.DataProvider;
 using luchito_net.Models;
 using luchito_net.Repository.Interfaces;
+using Npgsql;
+using luchito_net.Models.Entity;
 
 namespace luchito_net.Repository
 {
@@ -18,7 +20,7 @@ namespace luchito_net.Repository
                 await _context.SaveChangesAsync();
                 return createdCategory.Entity;
             }
-            catch (Npgsql.PostgresException ex)
+            catch (PostgresException ex)
             {
                 _logger.LogError(ex, "Error in CreateCategory for category with Name {CategoryName}", category.Name);
                 throw new Exception(ex.Message, ex);
@@ -41,7 +43,7 @@ namespace luchito_net.Repository
             }
         }
 
-        public async Task<Category> GetCategoryById(int id)
+        public async Task<Category> GetCategory(int id)
         {
             return await _context.Category.FindAsync(id) ?? throw new Exception($"Category with ID {id} not found.");
         }
@@ -58,8 +60,8 @@ namespace luchito_net.Repository
                 .ToListAsync();
             return (query, await _context.Category
                 .Where(c => c.Name.Contains(name))
-                .Where(c => onlyActive && c.IsActive)
-                .Where(c => onlyRootCategories)
+                .Where(c => onlyActive && c.IsActive || !onlyActive)
+                .Where(c => onlyRootCategories && c.ParentCategoryID == null || !onlyRootCategories)
                 .CountAsync());
         }
 

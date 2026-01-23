@@ -1,9 +1,11 @@
 using luchito_net.Models;
 using luchito_net.Models.Dto.Request;
 using luchito_net.Models.Dto.Response;
+using luchito_net.Models.Entity;
 using luchito_net.Models.Mappers;
 using luchito_net.Repository.Interfaces;
 using luchito_net.Service.Interfaces;
+using luchito_net.Utils;
 
 namespace luchito_net.Service
 {

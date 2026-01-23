@@ -64,7 +64,7 @@ namespace luchito_net.Controllers
         public async Task<ActionResult<CategoryResponseDto>> CreateCategory([FromBody] CategoryRequestDto categoryDto)
         {
             var result = await _categoryService.CreateCategory(categoryDto);
-            return CreatedAtAction(nameof(GetCategoryById), new { id = result.Id }, result);
+            return CreatedAtAction(nameof(GetCategory), new { id = result.Id }, result);
         }
 
         /// <summary>
@@ -78,9 +78,9 @@ namespace luchito_net.Controllers
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
         [Produces("application/json")]
-        public async Task<ActionResult<CategoryResponseDto>> GetCategoryById(int id)
+        public async Task<ActionResult<CategoryResponseDto>> GetCategory(int id)
         {
-            var result = await _categoryService.GetCategoryById(id);
+            var result = await _categoryService.GetCategory(id);
             return Ok(result);
         }
 

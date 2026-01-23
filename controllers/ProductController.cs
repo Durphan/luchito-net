@@ -88,9 +88,9 @@ namespace luchito_net.Controllers
         [ProducesResponseType(400)]
         [ProducesResponseType(500)]
         [Produces("application/json")]
-        public async Task<ActionResult<ProductResponseDto>> AddProduct([FromBody] ProductRequestDto product)
+        public async Task<ActionResult<ProductResponseDto>> CreateProduct([FromBody] ProductRequestDto product)
         {
-            var result = await _productService.AddProduct(product);
+            var result = await _productService.CreateProduct(product);
             return CreatedAtAction(nameof(GetProductById), new { id = result.Id }, result);
         }
 

@@ -1,5 +1,5 @@
 
-using luchito_net.Models;
+using luchito_net.Models.Entity;
 using Microsoft.EntityFrameworkCore;
 
 namespace luchito_net.Config.DataProvider

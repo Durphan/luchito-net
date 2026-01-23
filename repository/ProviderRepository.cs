@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using luchito_net.Config.DataProvider;
 using luchito_net.Models;
 using luchito_net.Repository.Interfaces;
+using luchito_net.Models.Entity;
 
 namespace luchito_net.Repository
 {

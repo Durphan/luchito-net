@@ -5,6 +5,7 @@ using luchito_net.Repository.Interfaces;
 using Npgsql;
 using Dapper;
 using System.Data;
+using luchito_net.Models.Entity;
 
 namespace luchito_net.Repository
 {
@@ -94,7 +95,7 @@ join category c on c.parent_category_id = cte.id
 )
 
 
-select * from product p
+select p.* from product p
 where p.category_id  in (select cte.id from category_cte cte)
 
 ", new { CategoryId = categoryId }, commandType: CommandType.Text);
