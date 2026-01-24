@@ -8,16 +8,7 @@ public static class CategoryMapper
 {
     public static CategoryResponseDto ToResponseDto(this Category category)
     {
-        return new CategoryResponseDto
-        {
-            Id = category.Id,
-            Name = category.Name,
-            ParentCategoryID = category.ParentCategoryID,
-            IsActive = category.IsActive,
-            CreatedAt = category.CreatedAt,
-            UpdatedAt = category.UpdatedAt,
-            IsFather = category.ParentCategoryID == null,
-        };
+        return new CategoryResponseDto(category);
     }
 
     public static Category ToEntity(this CategoryRequestDto categoryDto)

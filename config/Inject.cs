@@ -1,3 +1,5 @@
+using luchito_net.Config.DataProvider;
+using luchito_net.Config.DataProvider.Interfaces;
 using luchito_net.Repository;
 using luchito_net.Repository.Interfaces;
 using luchito_net.Service;
@@ -22,6 +24,7 @@ namespace luchito_net.Config
             services.AddScoped<IProviderService, ProviderService>();
             services.AddScoped<IStateRepository, StateRepository>();
             services.AddScoped<IStateService, StateService>();
+            services.AddScoped<IDapperWrapper, DapperWrapper>();
         }
     }
 }

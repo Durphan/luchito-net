@@ -54,6 +54,7 @@ namespace luchito_net.Repository
                 .Where(c => c.Name.Contains(name))
                 .Where(c => onlyActive && c.IsActive || !onlyActive)
                 .Where(c => onlyRootCategories && c.ParentCategoryID == null || !onlyRootCategories)
+                .Include(c => c.Subcategories)
                 .OrderBy(c => c.Name)
                 .Skip((page - 1) * take)
                 .Take(take)
@@ -70,6 +71,7 @@ namespace luchito_net.Repository
             return await _context.Set<Category>()
                 .Where(c => c.ParentCategoryID == parentCategoryId)
                 .OrderBy(c => c.Name)
+                .Include(c => c.Subcategories)
                 .ToListAsync();
         }
 

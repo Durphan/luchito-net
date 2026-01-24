@@ -17,8 +17,11 @@ public class Category
 	[Required, DefaultValue(true), Column("is_active")]
 	public bool IsActive { get; set; }
 
-	[ForeignKey("ParentCategory"), Column("parent_category_id")]
+	[Column("parent_category_id"), ForeignKey("ParentCategory")]
 	public int? ParentCategoryID { get; set; }
+
+	[InverseProperty("ParentCategory")]
+	public virtual ICollection<Category>? Subcategories { get; set; }
 
 	[ForeignKey("ParentCategoryID")]
 	public virtual Category? ParentCategory { get; set; }

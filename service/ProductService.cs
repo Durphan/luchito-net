@@ -18,6 +18,7 @@ namespace luchito_net.Service
 
         public async Task<ProductSearchResponseDto> SearchProductsByName(string query, int page, int pageSize, bool onlyActive)
         {
+            query = NameNormalizer.NormalizeSearch(query);
             (IEnumerable<Product> products, int total) = await _productRepository.GetProductsByName(query, page, pageSize, onlyActive);
             return products.ToSearchResponseDto(query, total, page, pageSize);
         }

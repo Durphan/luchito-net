@@ -18,7 +18,7 @@ public class Product
     public required bool IsActive { get; set; } = true;
 
 
-    [Required, ForeignKey("category_id"), Column("category_id")]
+    [Required, Column("category_id"), ForeignKey("Category")]
     public required int CategoryId { get; set; }
 
     [Required]

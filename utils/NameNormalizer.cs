@@ -11,4 +11,10 @@ public static class NameNormalizer
         name = name.Trim();
         return char.ToUpper(name[0]) + name[1..].ToLower();
     }
+
+    public static string NormalizeSearch(string name)
+    {
+        name = name.Trim();
+        return string.IsNullOrEmpty(name) ? name : char.ToUpper(name[0]) + name[1..].ToLower();
+    }
 }

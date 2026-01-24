@@ -6,17 +6,18 @@ using Npgsql;
 using Dapper;
 using System.Data;
 using luchito_net.Models.Entity;
+using luchito_net.Config.DataProvider.Interfaces;
 
 namespace luchito_net.Repository
 {
-    public class ProductRepository(InitializeDatabase _context, ILogger<ProductRepository> _logger, IConfiguration configuration) : IProductRepository
+    public class ProductRepository(InitializeDatabase _context, ILogger<ProductRepository> _logger, IConfiguration configuration, IDapperWrapper dapperWrapper) : IProductRepository
     {
         private readonly InitializeDatabase _context = _context;
         private readonly ILogger<ProductRepository> _logger = _logger;
 
         private readonly IConfiguration _configuration = configuration;
 
-        private NpgsqlConnection Connection() => new(_configuration.GetConnectionString("DockerPostgreSql"));
+        private readonly IDapperWrapper _dapperWrapper = dapperWrapper;
 
 
         public async Task<Product> CreateProduct(Product product)
@@ -79,11 +80,10 @@ namespace luchito_net.Repository
         public async Task<(IEnumerable<Product> products, int total)> GetProductsByCategoryId(int categoryId, int page, int limit, bool onlyActive = true)
         {
 
-            using var db = Connection();
 
-            db.Open();
 
-            var products = await db.QueryAsync<Product>(@"with recursive category_cte as  (
+
+            var products = await _dapperWrapper.QueryAsync<Product>(_configuration, @"with recursive category_cte as  (
 
 select c.id from category c
 where c.id = @CategoryId

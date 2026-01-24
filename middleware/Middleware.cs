@@ -1,6 +1,7 @@
 using System.Data.Common;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Npgsql;
 
 namespace luchito_net.Middleware;
 
@@ -37,16 +38,14 @@ public class Middleware(ILogger<Middleware> logger) : IMiddleware, IActionFilter
             context.Response.StatusCode = StatusCodes.Status404NotFound;
             await context.Response.WriteAsync(exception.Message);
         }
-        else if (exception is DbException)
+        if (exception is PostgresException)
         {
             context.Response.StatusCode = StatusCodes.Status500InternalServerError;
             await context.Response.WriteAsync("A database error occurred. Please try again later.");
         }
-        else
-        {
-            context.Response.StatusCode = StatusCodes.Status500InternalServerError;
-            await context.Response.WriteAsync("An unexpected error occurred. Please try again later.");
-        }
+        context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+        await context.Response.WriteAsync("An unexpected error occurred. Please try again later.");
+
     }
 
     public void OnActionExecuting(ActionExecutingContext context)
@@ -54,10 +53,10 @@ public class Middleware(ILogger<Middleware> logger) : IMiddleware, IActionFilter
         if (!context.ModelState.IsValid)
         {
             var errors = context.ModelState
-                .Where(ms => ms.Value?.Errors.Count > 0)
+                .Where(field => field.Value?.Errors.Count > 0)
                 .ToDictionary(
-                    kvp => kvp.Key,
-                    kvp => kvp.Value!.Errors.Select(e => e.ErrorMessage).ToArray()
+                    field => field.Key,
+                    field => field.Value!.Errors.Select(e => e.ErrorMessage).ToArray()
                 );
 
             context.Result = new BadRequestObjectResult(new { Errors = errors });
@@ -66,6 +65,9 @@ public class Middleware(ILogger<Middleware> logger) : IMiddleware, IActionFilter
 
     public void OnActionExecuted(ActionExecutedContext context)
     {
-        // No action needed after the action executes
+        if (context.Exception != null)
+        {
+            LogRequestedPath(context.HttpContext, context.Exception);
+        }
     }
 }

@@ -29,6 +29,7 @@ namespace luchito_net.Service
 
         async public Task<GetAllCategoriesResponseDto> GetAllCategories(string name, int page, int take, bool onlyActive, bool onlyRootCategories)
         {
+            name = NameNormalizer.NormalizeSearch(name);
             (IEnumerable<Category>, int) categories = await _categoryRepository.GetAllCategories(name, page, take, onlyActive, onlyRootCategories);
             return categories.Item1.ToGetAllCategoriesResponseDto(categories.Item2, page, take);
         }
@@ -49,7 +50,7 @@ namespace luchito_net.Service
         public async Task<List<CategoryResponseDto>> GetSubcategories(int parentCategoryId, bool onlyActive)
         {
             var subcategories = await _categoryRepository.GetSubcategories(parentCategoryId, onlyActive);
-            return subcategories.Select(c => c.ToResponseDto()).ToList();
+            return [.. subcategories.Select(c => c.ToResponseDto())];
         }
 
     }
