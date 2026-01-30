@@ -8,7 +8,7 @@ namespace luchito_net.Service.Interfaces
 
     public interface ICategoryService
     {
-        Task<CategoriesPaginatedResponseDto> GetAllCategories(string name, int page, int take, bool onlyActive, bool onlyRootCategories);
+        Task<CategoriesPaginatedResponseDto> GetAllCategories(string name, int page, int take, bool onlyActive);
 
         Task<List<CategoryResponseDto>> GetSubcategories(int parentCategoryId, bool onlyActive);
 

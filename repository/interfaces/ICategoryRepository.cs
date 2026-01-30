@@ -5,7 +5,7 @@ namespace luchito_net.Repository.Interfaces
 {
     public interface ICategoryRepository
     {
-        Task<(IEnumerable<Category> Categories, int Total)> GetAllCategories(string name, int page, int take, bool onlyActive = true, bool onlyRootCategories = true);
+        Task<(IEnumerable<Category> Categories, int Total)> GetAllCategories(string name, int page, int take, bool onlyActive = true);
 
         Task<IEnumerable<Category>> GetSubcategories(int parentCategoryId, bool onlyActive = true);
 

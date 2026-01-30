@@ -43,17 +43,17 @@ namespace luchito_net.Repository
             }
         }
 
+
         public async Task<Category> GetCategory(int id)
         {
             return await _context.Category.FindAsync(id) ?? throw new Exception($"Category with ID {id} not found.");
         }
 
-        public async Task<(IEnumerable<Category> Categories, int Total)> GetAllCategories(string name, int page, int take, bool onlyActive = true, bool onlyRootCategories = true)
+        public async Task<(IEnumerable<Category> Categories, int Total)> GetAllCategories(string name, int page, int take, bool onlyActive = true)
         {
             var query = await _context.Category
                 .Where(c => c.Name.Contains(name))
                 .Where(c => onlyActive && c.IsActive || !onlyActive)
-                .Where(c => onlyRootCategories && c.ParentCategoryID == null || !onlyRootCategories)
                 .OrderBy(c => c.Name)
                 .Skip((page - 1) * take)
                 .Take(take)
@@ -61,7 +61,6 @@ namespace luchito_net.Repository
             return (query, await _context.Category
                 .Where(c => c.Name.Contains(name))
                 .Where(c => onlyActive && c.IsActive || !onlyActive)
-                .Where(c => onlyRootCategories && c.ParentCategoryID == null || !onlyRootCategories)
                 .CountAsync());
         }
 

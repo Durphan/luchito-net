@@ -29,10 +29,10 @@ namespace luchito_net.Service
             return deletedCategory.ToResponseDto();
         }
 
-        async public Task<CategoriesPaginatedResponseDto> GetAllCategories(string name, int page, int take, bool onlyActive, bool onlyRootCategories)
+        async public Task<CategoriesPaginatedResponseDto> GetAllCategories(string name, int page, int take, bool onlyActive)
         {
             name = NameNormalizer.NormalizeSearch(name);
-            (IEnumerable<Category>, int) categories = await _categoryRepository.GetAllCategories(name, page, take, onlyActive, onlyRootCategories);
+            (IEnumerable<Category>, int) categories = await _categoryRepository.GetAllCategories(name, page, take, onlyActive);
             return categories.Item1.ToGetAllCategoriesResponseDto(categories.Item2, page, take);
         }
 
