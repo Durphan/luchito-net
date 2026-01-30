@@ -22,9 +22,9 @@ public static class CategoryMapper
         };
     }
 
-    public static GetAllCategoriesResponseDto ToGetAllCategoriesResponseDto(this IEnumerable<Category> categories, int total, int page, int take)
+    public static CategoriesPaginatedResponseDto ToGetAllCategoriesResponseDto(this IEnumerable<Category> categories, int total, int page, int take)
     {
-        return new GetAllCategoriesResponseDto
+        return new CategoriesPaginatedResponseDto
         {
 
             Data = categories.Select(c => c.ToResponseDto()),

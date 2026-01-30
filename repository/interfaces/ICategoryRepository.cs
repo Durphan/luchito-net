@@ -9,6 +9,8 @@ namespace luchito_net.Repository.Interfaces
 
         Task<IEnumerable<Category>> GetSubcategories(int parentCategoryId, bool onlyActive = true);
 
+        Task<IEnumerable<Category>> GetCategoryFather();
+
         Task<Category> CreateCategory(Category category);
 
         Task<Category> UpdateCategory(int id, Category category);

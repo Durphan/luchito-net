@@ -1,3 +1,4 @@
+using luchito_net.Config.DataProvider;
 using luchito_net.Models;
 using luchito_net.Models.Dto.Request;
 using luchito_net.Models.Dto.Response;
@@ -14,6 +15,7 @@ namespace luchito_net.Service
 
         private readonly ICategoryRepository _categoryRepository = categoryRepository;
 
+
         async public Task<CategoryResponseDto> CreateCategory(CategoryRequestDto categoryDto)
         {
             categoryDto.Name = NameNormalizer.Normalize(categoryDto.Name);
@@ -27,7 +29,7 @@ namespace luchito_net.Service
             return deletedCategory.ToResponseDto();
         }
 
-        async public Task<GetAllCategoriesResponseDto> GetAllCategories(string name, int page, int take, bool onlyActive, bool onlyRootCategories)
+        async public Task<CategoriesPaginatedResponseDto> GetAllCategories(string name, int page, int take, bool onlyActive, bool onlyRootCategories)
         {
             name = NameNormalizer.NormalizeSearch(name);
             (IEnumerable<Category>, int) categories = await _categoryRepository.GetAllCategories(name, page, take, onlyActive, onlyRootCategories);
@@ -38,6 +40,12 @@ namespace luchito_net.Service
         {
             var category = await _categoryRepository.GetCategory(id);
             return category.ToResponseDto();
+        }
+
+        public async Task<CategoriesPaginatedResponseDto> GetParentCategories(int page, int take)
+        {
+            var categories = await _categoryRepository.GetCategoryFather();
+            return categories.ToGetAllCategoriesResponseDto(categories.Count(), page, take);
         }
 
         public async Task<CategoryResponseDto> UpdateCategory(int id, CategoryRequestDto categoryDto)

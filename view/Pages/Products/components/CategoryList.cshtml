@@ -1,0 +1,20 @@
+@using luchito_net.Models.Dto.Response
+@using luchito_net.Models.Entity
+
+@model List<Category>
+@{
+
+    foreach (var category in Model)
+    {
+        <ul class="list-group">
+        <li class="list-group-item list-group-item-action" data-id="@category.Id">
+            <span class="category-name">@category.Name</span>
+            <button class="btn btn-sm btn-success add-sub-btn" data-id="@category.Id" title="Agregar subcategoría">+</button>
+            <button class="btn btn-sm btn-danger delete-btn" data-id="@category.Id" title="Eliminar categoría">-</button>
+            <div class="subcategories" style="display:none; margin-left: 20px;"></div>
+        </li>
+        </ul>
+        
+    }
+}
+</div>

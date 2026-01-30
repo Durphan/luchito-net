@@ -25,7 +25,7 @@ namespace luchito_net.Models.Dto.Response
         /// <summary>
         /// Indicates whether the category has subcategories.
         /// </summary>
-        public bool IsFather { get; set; } = category.Subcategories != null && category.Subcategories.Count != 0;
+        public bool IsFather { get; set; } = category.ParentCategoryID == null;
 
         /// <summary>
         /// The ID of the parent category for hierarchical structure. Null if it's a root category.

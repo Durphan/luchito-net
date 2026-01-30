@@ -11,6 +11,11 @@ public static class ProductMapper
         return new ProductResponseDto(product.Id, product.Name, product.Category.Name, product.IsActive);
     }
 
+    public static ProductResponseDtoWithoutCategory ProductResponseDtoWithoutCategory(this Product product)
+    {
+        return new ProductResponseDtoWithoutCategory(product.Id, product.Name, product.IsActive);
+    }
+
     public static Product ToEntity(this ProductRequestDto productDto)
     {
         return new Product
@@ -25,12 +30,6 @@ public static class ProductMapper
     {
         return new ProductResponseDto(product.Id, product.Name, product.Category.Name, product.IsActive);
     }
-
-    public static ProductWithoutCategory EntityToWithoutCategoryResponseDTO(this Product product)
-    {
-        return new ProductWithoutCategory(product.Id, product.Name, product.IsActive);
-    }
-
     public static ProductSearchResponseDto ToSearchResponseDto(this IEnumerable<Product> products, string query, int total, int page, int pageSize)
     {
         return new ProductSearchResponseDto(query, total, page, pageSize, products);

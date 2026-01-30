@@ -3,7 +3,7 @@ namespace luchito_net.Models.Dto.Response
     /// <summary>
     /// Data transfer object for paginated category list response.
     /// </summary>
-    public class GetAllCategoriesResponseDto
+    public class CategoriesPaginatedResponseDto
     {
         /// <summary>
         /// The total number of categories available.
